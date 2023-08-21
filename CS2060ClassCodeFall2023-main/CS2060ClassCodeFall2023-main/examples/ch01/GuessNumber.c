@@ -1,58 +1,58 @@
 // Randomly generate numbers between a min and max for user to guess.
 
 
-//
+// these statements "import" libraries into the program to allow certain methods and functions to be used that are not in the standard library
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-//
+// sets "constants" and sets the values equal to placeholders called MIN and MAX
 #define MIN 1
 #define MAX 1000
 
-//
+// defines a two functions that the program will use. The first function takes no arguments, the second takes the user's guess and the number answer
 void guessGame(void); 
 bool isCorrect(int guess, int answer); 
 
 int main(void) {
-    //
+    // I am not sure how this line contributes to the rest of the program. I know it generate a random value, but I don't know what else it does.
    srand(time(0)); 
 
-   //
+   // calls the guessGame function and passes program execution to the function 
    guessGame();
 } // end main
 
 
 
-// 
+// instantiates the guessGame function
 void guessGame(void) {
     
-    //
+    // sets variable values pre-excecution 
    int response =0;
    int guess = 0;
 
-   // 
+   // starts a do-while loop. The "do" portion will always run, the "while" portion will stop when the condition is met
    do {
 
-      // 
-      int answer = 1 + rand() % 1000;
+      // defines the variable "answer" and assigns it to a random value within the parameters
+      int answer = MIN + rand() % MAX;
 
-      //
+      // prints this message to the console using the MIN and MAX variables in the message
       printf("I have a number between %d and %d.\n", MIN, MAX);
 
-      // 
+      // prints this message to the console with a line break "\n"
       puts("Can you guess my number?\n" 
            "Please type your first guess.");
 
-      //
+      // This line uses a format specifier "%s" to print a string "?" to the console
       printf("%s", "? ");
       
 
-      //
+      // receives an input, specifically an integer specified by the "%d" specifier, from the user and stores that in the variable "guess"
       scanf("%d", &guess);
 
-      // 
+      // this will loop until the user picks the correct answer and will continue asking the user for a guess
       while (!isCorrect(guess, answer)) {
          scanf("%d", &guess);
       }
@@ -67,18 +67,18 @@ void guessGame(void) {
    } while (response == 1);
 } // end function guessGame
 
-// 
+// instantiates the isCorrect function that takes two parameters, the user's guess and the answer
 bool isCorrect(int guess, int answer) {
 
-    //
+    // sets the default value of the trigger "correct" to false
     bool correct = false;
 
-   // 
+   // checks if the user has guessed the answer and if they have, set the trigger "correct" to true
    if (guess == answer) {
       correct = true;
    }
 
-   // 
+   // this will help the user guess the number by giving them hints based on their guess
    if (guess < answer) {
       printf( "%s", "Too low. Try again.\n? " );
    }
