@@ -17,12 +17,11 @@ bool isCorrect(int guess, int answer);
 
 int main(void) {
     // I am not sure how this line contributes to the rest of the program. I know it generate a random value, but I don't know what else it does.
-   // srand(time(0)); 
+   srand(time(0)); 
 
    // calls the guessGame function and passes program execution to the function 
    guessGame();
 } // end main
-
 
 
 // instantiates the guessGame function
@@ -37,6 +36,8 @@ void guessGame(void) {
 
       // defines the variable "answer" and assigns it to a random value within the parameters
       int answer = MIN + rand() % MAX;
+
+      puts("Hello Josh")
 
       // prints this message to the console using the MIN and MAX variables in the message
       printf("I have a number between %d and %d.\n", MIN, MAX);
