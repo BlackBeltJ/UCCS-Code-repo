@@ -37,7 +37,7 @@ void guessGame(void) {
       // defines the variable "answer" and assigns it to a random value within the parameters
       int answer = MIN + rand() % MAX;
 
-      puts("Hello Josh")
+      
 
       // prints this message to the console using the MIN and MAX variables in the message
       printf("I have a number between %d and %d.\n", MIN, MAX);
