@@ -16,7 +16,7 @@ void guessGame(void);
 bool isCorrect(int guess, int answer); 
 
 int main(void) {
-    // I am not sure how this line contributes to the rest of the program. I know it generate a random value, but I don't know what else it does.
+    // generate a random value to set as the random seed. Uses time from a certain event to get a new random number every time the program is run
    srand(time(0)); 
 
    // calls the guessGame function and passes program execution to the function 
