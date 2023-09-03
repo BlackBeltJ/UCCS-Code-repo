@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+// function declarations
+double calculateArea(double length, double width);
+
 // function main begins program execution 
 int main(void) {
 	int length = 0;
@@ -64,16 +67,30 @@ int main(void) {
 		}
 	}
 
+	// calculate area and display values
 	area = width * length;
 	printf("Length: %d, Width: %d, and the area is: %d", length, width, area);
 
+	// calculate average as double
 	double averageResult = (double) (length + width) / 2;
 	printf("\nAverage of length and width: %.1f", averageResult);
 
+	// call function to calculate DOUBLE area
+	area = calculateArea(length, width);
+	printf("\nArea from main: %d\n\n", area);
+
+	return 0;
     // printf("Welcome to C!\n");
 } // end function main 
 
-
+// function calculateArea takes length and width and returns the double area
+double calculateArea(double length, double width) 
+{
+	double area = (double) (length * width);
+	// the "%lf" format specifier tells the function to format to a double
+	printf("\n\nArea from function: %lf", area); 
+	return area;
+}// end of calculateArea function
 
 /**************************************************************************
  * (C) Copyright 1992-2021 by Deitel & Associates, Inc. and               *
