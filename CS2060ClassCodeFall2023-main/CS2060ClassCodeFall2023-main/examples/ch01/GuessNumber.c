@@ -29,7 +29,7 @@ int main(void) {
 void guessGame(void) {
     
     // sets variable values pre-excecution 
-   int response =0;
+   int response = 0;
    int guess = 0;
 
    // starts a do-while loop. The "do" portion will always run, the "while" portion will stop when the condition is met
