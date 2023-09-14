@@ -2,6 +2,8 @@
 // Counting letter grades with switch.
 #include <stdio.h>
 
+void display(min);
+
 int main(void) {
    int aCount = 0;
    int bCount = 0; 
@@ -58,6 +60,9 @@ int main(void) {
    printf("F: %d\n", fCount); 
 }
 
+void display(min) {
+
+}
 
 
 /**************************************************************************
