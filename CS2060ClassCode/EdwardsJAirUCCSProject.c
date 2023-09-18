@@ -28,7 +28,25 @@ int main(void) {
 	double const DISCOUNT = 50;
 
 	// put valid input and sentinal value logic in main
-
+	int userNightInput = 0;
+	int totalNights = 0;
+	int totalCharges = 0;
+	
+	while (userNightInput != SENTINAL_NEG1) {
+		printRentalPropertyInfo(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, INTERVAL_1_NIGHTS, INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
+		userNightInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
+		double rentalCharge = calculateCharges(userNightInput, INTERVAL_1_NIGHTS, INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
+		totalCharges = totalCharges + rentalCharge;
+		totalNights = totalNights + userNightInput;
+	}
+	if (totalNights == 0 || totalCharges == 0)
+	{
+		puts("No nights and charges accrewed.");
+	}
+	else 
+	{
+		printNightsCharges(totalNights, totalCharges);
+	}
 }
 
 //Prints the rental property information 
@@ -42,8 +60,6 @@ void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, uns
 
 //returns only valid input from the user based on the min and max values inclusively
 int getValidInt(int min, int max, int sentinal) {
-	static int totalNights = 0;
-	static double totalCharges = 0;
 	int userNightInput = 0;
 
 	puts("Enter the number of nights you want to rent the property: ");
@@ -66,21 +82,12 @@ int getValidInt(int min, int max, int sentinal) {
 				{
 					isValidInput = true;
 				}
-				else if (userNightInput == sentinal) 
-				{
-					if (totalNights != 0 || totalCharges != 0) 
-					{
-						printNightsCharges(totalNights, totalCharges);
-						isValidInput = true;
-					}
-					puts("No nights / charges accrewed.");
-				}
 				else 
 				{
 					printf("Error: Not within %d and %d. Please enter the value again: ", min, max);
 					scanfReturnValue = scanf("%d", &userNightInput);
 					while ((getchar() != '\n')); // clear the input buffer again
-
+					isValidInput = false;
 				}
 			}
 		}
@@ -98,7 +105,11 @@ int getValidInt(int min, int max, int sentinal) {
 //Calculates the charge based on the number of nights rented
 double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
 	interval2Nights, double rate, double discount) {
+	double charge = 0;
 
+	// create math logic
+
+	return charge;
 }
 
 //Prints the number of nights, and the charge  if there were any rentals
