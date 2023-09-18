@@ -27,6 +27,8 @@ int main(void) {
 	double const RENTAL_RATE = 400;
 	double const DISCOUNT = 50;
 
+	// put valid input and sentinal value logic in main
+
 }
 
 //Prints the rental property information 
@@ -60,24 +62,25 @@ int getValidInt(int min, int max, int sentinal) {
 			while (isValidInput == false) 
 				// NOTE TO SELF: need to flush out this control loop more
 			{
-				if (userNightInput < min || userNightInput > max) 
+				if (userNightInput >= min && userNightInput <= max) 
+				{
+					isValidInput = true;
+				}
+				else if (userNightInput == sentinal) 
+				{
+					if (totalNights != 0 || totalCharges != 0) 
+					{
+						printNightsCharges(totalNights, totalCharges);
+						isValidInput = true;
+					}
+					puts("No nights / charges accrewed.");
+				}
+				else 
 				{
 					printf("Error: Not within %d and %d. Please enter the value again: ", min, max);
 					scanfReturnValue = scanf("%d", &userNightInput);
 					while ((getchar() != '\n')); // clear the input buffer again
-				}
-				else if (userNightInput == sentinal) 
-				{
-					if (totalNights == 0 || totalCharges == 0) 
-					{
-						puts("No nights / charges accrewed.");
-					}
-					printNightsCharges(totalNights, totalCharges);
-					isValidInput = true;
-				}
-				else 
-				{
-					isValidInput = true;
+
 				}
 			}
 		}
