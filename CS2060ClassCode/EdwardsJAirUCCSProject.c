@@ -33,9 +33,9 @@ int main(void) {
 void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int
 	interval1Nights, unsigned int interval2Nights, double rate, double discount) {
 	printf("Rental property can be rented for %d to %d nights", minNights, maxNights);
-	printf("%d rate a night for the first %d nights", rate, interval1Nights);
-	printf("%d discount rate a night for nights %d to %d", interval1Nights, interval2Nights);
-	printf("%d discount rate a night for each remaining night over %d", (rate * 2), interval2Nights);
+	printf("%lf rate a night for the first %d nights", rate, interval1Nights);
+	printf("%lf discount rate a night for nights %d to %d", discount, interval1Nights, interval2Nights);
+	printf("%lf discount rate a night for each remaining night over %d", (rate * 2), interval2Nights);
 }
 
 //returns only valid input from the user based on the min and max values inclusively
