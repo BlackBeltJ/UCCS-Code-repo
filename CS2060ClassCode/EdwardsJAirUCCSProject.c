@@ -1,3 +1,13 @@
+/*
+Joshua Edwards
+CS 2060 003 AirUCCS Project Iteration 1
+This program creates a system for user to view information about rental properties and 
+then input the number of nights they want to rent the property for and receive an estimated
+charge based on the number of nights and the discount rate. The owner of the property can 
+also input a special value to receive back a summary of the nights rented and the total 
+money made. 
+*/
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
@@ -31,7 +41,7 @@ int main(void) {
 	int userNightInput = 0;
 	int totalNights = 0;
 	int totalCharges = 0;
-	
+
 	while (userNightInput != SENTINAL_NEG1) {
 		printRentalPropertyInfo(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, INTERVAL_1_NIGHTS, INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
 		userNightInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
@@ -43,7 +53,7 @@ int main(void) {
 	{
 		puts("No nights and charges accrewed.");
 	}
-	else 
+	else
 	{
 		printNightsCharges(totalNights, totalCharges);
 	}
@@ -61,42 +71,36 @@ void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, uns
 //returns only valid input from the user based on the min and max values inclusively
 int getValidInt(int min, int max, int sentinal) {
 	int userNightInput = 0;
+	int scanfReturnValue = 0;
 
-	puts("Enter the number of nights you want to rent the property: ");
-	int scanfReturnValue = scanf("%d", &userNightInput);
-	
 	// algorithm to check valid input
 	bool isValidInput = false;
 	while ((getchar() != '\n')); // clears the input buffer
 	while (isValidInput == false)
 	{
+		puts("Enter the number of nights you want to rent the property: ");
+		scanfReturnValue = scanf("%d", &userNightInput);
+		while ((getchar() != '\n')); // clear the input buffer again
+
 		if (scanfReturnValue == 1)
 		{
 			// if scanf returns a 1, that means that data was successfully read (the user entered an integer)
-					/* this is where I would check that the user entered in a valid value
-					considering the range of acceptable values */
-			while (isValidInput == false) 
-				// NOTE TO SELF: need to flush out this control loop more
+			// check input against acceptable range
+			if (userNightInput >= min && userNightInput <= max)
 			{
-				if (userNightInput >= min && userNightInput <= max) 
-				{
-					isValidInput = true;
-				}
-				else 
-				{
-					printf("Error: Not within %d and %d. Please enter the value again: ", min, max);
-					scanfReturnValue = scanf("%d", &userNightInput);
-					while ((getchar() != '\n')); // clear the input buffer again
-					isValidInput = false;
-				}
+				isValidInput = true;
+			}
+			else
+			{
+				printf("Error: Not within %d and %d. Please enter the value again.\n ", min, max);
+				isValidInput = false;
 			}
 		}
 		else
 		{
 			// prompt the user for an integer again if they did not enter one initially
-			puts("Error: Not an integer number. Please enter the value again.");
-			scanfReturnValue = scanf("%d", &userNightInput);
-			while ((getchar() != '\n')); // clear the input buffer again
+			puts("Error: Not an integer number. Please enter the value again.\n");
+			isValidInput = false;
 		}
 	}
 	return userNightInput;
@@ -108,7 +112,21 @@ double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsig
 	double charge = 0;
 
 	// create math logic
-
+	// base rate
+	if (nights < interval1Nights) {
+		charge += (nights * rate);
+	}
+	// reduced rate
+	if (nights > interval2Nights) {
+		charge += ((interval2Nights - interval1Nights) * (rate - discount));
+	}
+	else (nights <= interval2Nights); 
+		charge += ((nights - interval1Nights) * (rate * discount));
+	// double reduced rate
+	if (nights > interval2Nights) {
+		charge += ((nights - interval2Nights) * (rate - 2 * discount));
+	}
+	// need to increment charge as it's calculated
 	return charge;
 }
 
