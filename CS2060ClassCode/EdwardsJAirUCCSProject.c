@@ -24,11 +24,12 @@ double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsig
 	interval2Nights, double rate, double discount);
 
 //Prints the number of nights, and the charge  if there were any rentals
-//Use for printing  vacationer charge or for property owner summary
+//Use for printing vacationer charge or for property owner summary
 void printNightsCharges(unsigned int nights, double charges);
 
-
+// main function
 int main(void) {
+	// constants
 	int const SENTINAL_NEG1 = -1;
 	int unsigned const MIN_RENTAL_NIGHTS = 1;
 	unsigned int const MAX_RENTAL_NIGHTS = 14;
@@ -37,21 +38,21 @@ int main(void) {
 	double const RENTAL_RATE = 400;
 	double const DISCOUNT = 50;
 
-	// put valid input and sentinal value logic in main
 	int userNightInput = 0;
 	int totalNights = 0;
-	int totalCharges = 0;
+	double totalCharges = 0;
 
+	// this loop controls the main flow of the program and will exit when the sentinal value is entered. 
 	while (userNightInput != SENTINAL_NEG1) {
 		printRentalPropertyInfo(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, INTERVAL_1_NIGHTS, INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
 		userNightInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
-		if (userNightInput != -1)
+		if (userNightInput != SENTINAL_NEG1) // the purpose of this loop is to prevent the sentinal value from being written into the totalCharges and totalNights before the while loop comes back around and breaks
 		{
 			double rentalCharge = calculateCharges(userNightInput, INTERVAL_1_NIGHTS, INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
 			totalCharges = totalCharges + rentalCharge;
 			totalNights = totalNights + userNightInput;
 		}
-	}
+	} // this is for when there are no rentals and the owner wants a summary
 	if (totalNights == 0 || totalCharges == 0)
 	{
 		puts("\nThere were no rentals...Exiting program");
@@ -65,6 +66,7 @@ int main(void) {
 //Prints the rental property information 
 void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int
 	interval1Nights, unsigned int interval2Nights, double rate, double discount) {
+	// %.2f is rounding to 2 decimal places
 	printf("\n\nRental property can be rented for %d to %d nights", minNights, maxNights);
 	printf("\n%.2f rate a night for the first %d nights", rate, interval1Nights);
 	printf("\n%.2f discount rate a night for nights %d to %d", discount, (interval1Nights + 1), interval2Nights);
@@ -76,15 +78,14 @@ int getValidInt(int min, int max, int sentinal) {
 	int userNightInput = 0;
 	int scanfReturnValue = 0;
 
-	// algorithm to check valid input
 	bool isValidInput = false;
-
 	puts("\nEnter the number of nights you want to rent the property: ");
 	
+	// algorithm to check valid input
 	while (isValidInput == false)
 	{
 		// prompt user for nights
-		scanfReturnValue = scanf("%d", &userNightInput);
+		scanfReturnValue = scanf("%d", &userNightInput); // %d is integer specifier, & symbol is address operator and writes directly back to userNightInput
 		while ((getchar() != '\n')); // clear the input buffer 
 
 		if (scanfReturnValue == 1)
