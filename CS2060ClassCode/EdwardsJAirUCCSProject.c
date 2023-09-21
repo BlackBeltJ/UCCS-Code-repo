@@ -96,7 +96,7 @@ int getValidInt(int min, int max, int sentinal) {
 			{
 				isValidInput = true;
 			}
-			else if (userNightInput == -1) {
+			else if (userNightInput == sentinal) {
 				isValidInput = true;
 			}
 			else
@@ -112,7 +112,7 @@ int getValidInt(int min, int max, int sentinal) {
 			isValidInput = false;
 		}
 	}
-	return userNightInput;
+	return userNightInput; // this function will always return a valid integer 
 }
 
 //Calculates the charge based on the number of nights rented
@@ -120,18 +120,28 @@ double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsig
 	interval2Nights, double rate, double discount) {
 	double charge = 0;
 
-	// math logic
-	charge = nights * rate; // base case nights is less than interval 1
-	if (nights > interval1Nights) { // second case nights are between interval 1 and 2 (standard discount)
+	/* 
+	This algorithm assume that the user is not getting any discount by calculating the charge using the base rent. Then the program will
+	test the night input to see if the user is getting any discount. If the user does qualify for a discount, the program will SUBTRACT 
+	the respective discount depending on how many nights the user entered. 
+	*/
+
+	// base case nights is less than interval 1
+	charge = nights * rate; 
+	// second case nights are between interval 1 and 2 (standard discount)
+	if (nights > interval1Nights) { 
 		if (nights > interval2Nights) 
 		{
+			// if nights is greater than interval 2, in other words if the user is maximizing their basic discount
 			charge = charge - ((interval2Nights - interval1Nights) * discount);
 		}
 		else {
+			// if the user is between interval 1 and interval 2
 			charge = charge - ((nights - interval1Nights) * discount);
 		}
 	}
-	if (nights > interval2Nights) { // third case nights are over interval 2 (double discount)
+	// third case nights are over interval 2 (double discount)
+	if (nights > interval2Nights) { 
 		charge = charge - ((nights - interval2Nights) * (discount * 2));
 	}
 	printf("\nNights\t\tCharge\n%d\t\t$%.2f", nights, charge);
