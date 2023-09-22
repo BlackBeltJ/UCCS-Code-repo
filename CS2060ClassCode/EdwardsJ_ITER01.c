@@ -1,7 +1,6 @@
 /*
 Joshua Edwards
 CS 2060 003 AirUCCS Project Iteration 1
-Made on Windows 10
 This program creates a system for user to view information about rental properties and
 then input the number of nights they want to rent the property for and receive an estimated
 charge based on the number of nights and the discount rate. The owner of the property can
