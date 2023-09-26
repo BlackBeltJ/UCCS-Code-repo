@@ -39,6 +39,8 @@ int main(void) {
 		}
 	}
 
+	// printCategories(); add parameters
+	// getRatings(); add parameters
 
 } // end main
 
@@ -55,19 +57,58 @@ void printCategories(const char* categories[], size_t totalCategories)
 }
 
 void getRatings(int rentalSurvey[][RENTERRATING], size_t renters_rows, size_t ratings_colums, int MIN_RATING, int MAX_RATING) {
-	// display character array for rating titles
 	// ask user for each rating	
 	// verify valid data, use getValidInt()
+	int rating = getValidInt(MIN_RATING, MAX_RATING);
+
 	// write data to rentalSurvey[][] array
+
 }
 
 int getValidInt(int MIN_RATING, int MAX_RATING) {
-	// grab algorithm from documentation
-	// check for range
+	// algorithm to check valid input
+	int input = 0;
+	bool isValidInput = false;
+
+	printf("Please enter an integer rating between %d and %d", MIN_RATING, MAX_RATING);
+	int scanfReturnValue = scanf("%d", &input);
+	while ((getchar() != '\n')); // clears the input buffer
+	while (isValidInput == false)
+	{
+		if (scanfReturnValue == 1)
+		{
+			// if scanf returns a 1, that means that data was successfully read (the user entered an integer)
+			// check range
+			if ((input >= MIN_RATING) && (input <= MAX_RATING)) {
+				isValidInput = true;
+			}
+			else {
+				printf("Not between %d and %d, please try again: ", MIN_RATING, MAX_RATING);
+				isValidInput = false;
+				
+				int scanfReturnValue = scanf("%d", &input); // prompt user again
+				while ((getchar() != '\n')); // clears the input buffer
+			}
+		}
+		else
+		{
+			// prompt the user for an integer again if they did not enter one initially
+			puts("Not an integer, please try again: ");
+			scanfReturnValue = scanf("%d", &input);
+			while ((getchar() != '\n')); // clear the input buffer again
+		}
+	}
+	return input; // function will always returen valid input
 }
 
 void printSurveyResults(const int rentalSurvey[][RENTERRATING], int MIN_RATING, int MAX_RATING) {
 	// loop through array and display the each row and column
+	for (size_t renter_row = 0; renter_row < RENTERROWS; renter_row++) {
+		printf("Review %d: ", renter_row);
+		for (size_t renter_rating = 0; renter_rating < RENTERRATING; renter_rating++) {
+			printf("\t%d", renter_rating);
+		}
+	}
 }
 
 void calculateCetegoryAverages(int rentalSurvey[][RENTERRATING], int categoryAverages[RENTER_SURVEY_CATEGORIES], size_t renters_rows, size_t ratings_columns) {
@@ -77,4 +118,7 @@ void calculateCetegoryAverages(int rentalSurvey[][RENTERRATING], int categoryAve
 
 void printCategoryData(const int categoryAverages[RENTER_SURVEY_CATEGORIES], size_t totalCategories) {
 	// iterate through categoryAverages[] array and display results
+	for (size_t categories = 0; categories < totalCategories; categories++) {
+		printf("%d\t", categories);
+	}
 }
