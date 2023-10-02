@@ -39,8 +39,8 @@ int main(void) {
 	double const RENTAL_RATE = 400;
 	double const DISCOUNT = 50;
 
-	int userNightInput = 0;
-	int totalNights = 0;
+	unsigned int userNightInput = 0;
+	unsigned int totalNights = 0;
 	double totalCharges = 0;
 
 	// this loop controls the main flow of the program and will exit when the sentinal value is entered. 
@@ -109,7 +109,7 @@ int getValidInt(int min, int max, int sentinal) {
 		else
 		{
 			// prompt the user for an integer again if they did not enter one initially
-			printf("Error: Not an integer number. Please enter the value again:\n");
+			puts("Error: Not an integer number. Please enter the value again:\n");
 			isValidInput = false;
 		}
 	}
