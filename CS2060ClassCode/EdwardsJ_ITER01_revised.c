@@ -39,8 +39,8 @@ int main(void) {
 	double const RENTAL_RATE = 400;
 	double const DISCOUNT = 50;
 
-	unsigned int userNightInput = 0;
-	unsigned int totalNights = 0;
+	unsigned int userNightInput = 0; // NOTE TO SELF: change this to unsigned throughout program
+	unsigned int totalNights = 0; // NOTE TO SELF: change this to unsigned throughout program
 	double totalCharges = 0;
 
 	// this loop controls the main flow of the program and will exit when the sentinal value is entered. 
