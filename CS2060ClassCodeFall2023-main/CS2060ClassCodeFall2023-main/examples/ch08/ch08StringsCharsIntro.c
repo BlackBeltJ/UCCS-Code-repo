@@ -30,7 +30,7 @@ void exploreStringCharArray(void)
 {
 
 	char string1[] = "string1 C";
-	char string2a[] = { 'S', 't', 'r', 'i', 'n', 'g', '2', ' ', 'C' }; 
+	char string2a[] = { 'S', 't', 'r', 'i', 'n', 'g', '2', ' ', 'C' };  // no null char
 	char string2b[] = { 'S', 't', 'r', 'i', 'n', 'g', '2', ' ', 'C', '\0'};
 	char string3[10] = { " " };
 	char* string1Ptr = string1;
