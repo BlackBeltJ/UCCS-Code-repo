@@ -149,11 +149,4 @@ void calculateCategoryAverages(int rentalSurvey[][RENTER_SURVEY_CATEGORIES], dou
 	}	 
 }
 
-// this function prints the average of each category
-void printCategoryData(const double categoryAverages[RENTER_SURVEY_CATEGORIES], size_t totalCategories) {
-	// iterate through categoryAverages array and display results
-	printf("%s", "\nRating averages:");
-	for (size_t category = 0; category < totalCategories; category++) {
-		printf("\t\t%.2f", categoryAverages[category]);
-	}
-}
+/ 
