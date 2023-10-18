@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 
-#define LENGTH 13
+#define LENGTH 20
 
 void  exploreValidateInt(const char* buff);
 bool validateInt(char* buff, int* const validInt);
@@ -24,7 +24,12 @@ int main(void)
 	{
 		puts("\nEnter an integer");
 		fgets(inputStr, LENGTH, stdin);
-
+		for (int i = 0; i < strlen(inputStr); i++)
+		{
+			if (inputStr[i] == '\n') {
+				inputStr[i] = '\0';
+			}
+		}
 		exploreValidateInt(inputStr);
 	}
 
@@ -56,14 +61,14 @@ void printLimits()
 
 void  exploreValidateInt(const char* buff)
 {
-	char* end;
+	char* end = NULL;
 	errno = 0;
 	int validInt = 0;
-	long intTest = strtol(buff, &end, 10);
+	long intTest = strtol(buff, &end, 10); // stops when hits non-integer character
 	if (end == buff) {
 		fprintf(stderr, "%s: not a decimal number\n", buff);
 	}
-	else if ('\0' != *end) {
+	else if ('\0' != *end) { // 
 		fprintf(stderr, "%s: extra characters at end of input: %s\n", buff, end);
 	}
 	else if ((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno) {
@@ -78,5 +83,5 @@ void  exploreValidateInt(const char* buff)
 	else {
 		validInt = (int)intTest;
 		printf("%d is integer value ", validInt);
-	}
+	}// needs to return integer value
 }
