@@ -5,17 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define SIZE 80
 #define NAME_SIZE 20
 #define MAXEMPS 3
 
 // Defining a structure
-// Update to use typedef
-struct  employee {
+// now it can be accessed using the 'Employee" tag
+typedef struct  employee {
 	char firstName[NAME_SIZE];
 	char lastName[NAME_SIZE];
 	unsigned int age;
 	double hourlySalary;
-};
+} Employee;
 
 void enterEmployees(struct employee* employeeArr, int maxEmployees);
 void passStructByValue(struct employee aEmployee);
@@ -120,6 +121,7 @@ int main(void)
 	//part 4 passing to functions
 	puts("\n\nPart 4 Passing to Functions");
 
+	// pass struct by value
 	passStructByValue(aEmployee);
 	puts("\nAfter passing by value");
 	printf("aEmployee's first name: %s\n", aEmployee.firstName);
@@ -127,6 +129,7 @@ int main(void)
 	printf("aEmployee's age = %d\n", aEmployee.age);
 	printf("aEmployee's hourly salary = %3.2f\n", aEmployee.hourlySalary);
 
+	// pass struct by reference
 	passStructByReference(&aEmployee);
 	puts("\nAfter passing by reference");
 	printf("aEmployee's first name: %s\n", aEmployee.firstName);
@@ -173,11 +176,17 @@ void passStructByValue(struct employee employeeTest)
 }
 
 void passStructByReference(struct employee* employeeTestPtr)
-{
-	puts("In function call - change values in the structure");
+{;
+	puts("Enter hourly salary: ");
+	scanf("%lf", &employeeTestPtr->hourlySalary); // pass address of hourlySalary because it is a primitive datatype
+	while((getchar()!='\n')); // clear buffer
+	
+	puts("Enter first name: ");
+	fgets(employeeTestPtr->firstName,SIZE, stdin); // no need to use address operator & for firstName because it's a character array
 
-	strncpy(employeeTestPtr->firstName, "Dynamic", NAME_SIZE);
-	employeeTestPtr->hourlySalary = 100.00;
+	//puts("In function call - change values in the structure");
+	//strncpy(employeeTestPtr->firstName, "Dynamic", NAME_SIZE);
+	//employeeTestPtr->hourlySalary = 100.00;
 
 	printf("Employee's first name = %s\n", employeeTestPtr->firstName);
 	printf("Employee's hourly salary = %3.2f\n\n", employeeTestPtr->hourlySalary);
