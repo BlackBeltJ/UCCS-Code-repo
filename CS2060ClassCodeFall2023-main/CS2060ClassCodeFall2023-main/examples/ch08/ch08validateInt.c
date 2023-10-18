@@ -24,11 +24,8 @@ int main(void)
 	{
 		puts("\nEnter an integer");
 		fgets(inputStr, LENGTH, stdin);
-		for (int i = 0; i < strlen(inputStr); i++)
-		{
-			if (inputStr[i] == '\n') {
-				inputStr[i] = '\0';
-			}
+		if (inputStr[(strlen(inputStr) - 1)] == '\n') { // first check to see if there is a newline char \n at end of string
+			inputStr[strlen(inputStr) - 1] = '\0'; // if there is a newline char, replace it with a null char \0
 		}
 		exploreValidateInt(inputStr);
 	}

@@ -85,8 +85,8 @@ void setUpProperty(Property* propertyPtr) {
 
 void displayOrganization(const Property prop) {
 	printf("\nName: %s", prop.name);
-	printf("\nLocation: %s", prop.location);
-	printf("\nRental Property can be rented for %d to %d nights.", prop.interval1Nights, prop.interval2Nights);
+	printf("Location: %s", prop.location);
+	printf("Rental Property can be rented for %d to %d nights.", prop.interval1Nights, prop.interval2Nights);
 	printf("\n%.2f rate a night for the first %d nights", prop.rate, prop.interval1Nights);
 	printf("\n%.2f discount rate a night for nights %d to %d", prop.discount, prop.interval1Nights, prop.interval2Nights);
 	printf("\n%.2f discount rate a night for each remaining night over %d.", (prop.discount * 2), prop.interval2Nights);
