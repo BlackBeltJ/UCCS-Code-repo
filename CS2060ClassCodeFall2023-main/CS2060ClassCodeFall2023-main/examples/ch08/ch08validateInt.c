@@ -6,10 +6,9 @@
 #include <string.h>
 #include <stdbool.h>
 
-
 #define LENGTH 20
 
-void  exploreValidateInt(const char* buff);
+void exploreValidateInt(const char* buff);
 bool validateInt(char* buff, int* const validInt);
 void printLimits();
 
@@ -31,8 +30,6 @@ int main(void)
 	}
 
 }
-
-
 
 void printLimits()
 {
@@ -56,29 +53,32 @@ void printLimits()
 }
 
 
-void  exploreValidateInt(const char* buff)
+void exploreValidateInt(const char* buff)
 {
 	char* end = NULL;
 	errno = 0;
 	int validInt = 0;
 	long intTest = strtol(buff, &end, 10); // stops when hits non-integer character
-	if (end == buff) {
+	if (end == buff) { // checks to see if the pointer end was moved from it's original position (if it found a leading decimal)
 		fprintf(stderr, "%s: not a decimal number\n", buff);
 	}
-	else if ('\0' != *end) { // 
+	else if ('\0' != *end) { // checks to see if the pointer end is pointing to a null character which would mean strtol read through the whole string and ended without finding a non-decimal character
 		fprintf(stderr, "%s: extra characters at end of input: %s\n", buff, end);
 	}
-	else if ((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno) {
-		fprintf(stderr, "%s out of range of type long\n", buff);
+	else if ((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno) {	// checks to see if the value entered was too large or too small for the long type, and checks for errno value to see if user entered max or min value exactly
+		printf("ERANGE: %d", ERANGE);
+		printf("errno: %d", errno);
+		printf(stderr, "%s out of range of type long\n", buff);
 	}
-	else if (intTest > INT_MAX) {
+	else if (intTest > INT_MAX) { // checks to see if value entered is too large for the int datatype
 		fprintf(stderr, "%ld greater than INT_MAX\n", intTest);
 	}
-	else if (intTest < INT_MIN) {
+	else if (intTest < INT_MIN) { // checks to see if value entered is too small for the int datatype
 		fprintf(stderr, "%ld less than INT_MIN\n", intTest);
 	}
-	else {
-		validInt = (int)intTest;
+	else { // if all the tests were passed, this means the value entered is a valid integer
+		validInt = (int)intTest; 
 		printf("%d is integer value ", validInt);
-	}// needs to return integer value
+	}
+	// needs to return integer value
 }
