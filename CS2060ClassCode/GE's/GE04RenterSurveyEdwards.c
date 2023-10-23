@@ -148,5 +148,3 @@ void calculateCategoryAverages(int rentalSurvey[][RENTER_SURVEY_CATEGORIES], dou
 		categoryAverages[category] = average;
 	}	 
 }
-
-/ 
