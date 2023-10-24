@@ -81,6 +81,8 @@ void getRatings(int rentalSurvey[][RENTER_SURVEY_CATEGORIES], size_t renters_row
 			rentalSurvey[renters][category] = rating;
 		}
 	}
+// add static counter to tell function what row to start writing data to
+	
 } // by the end of this function, the 2D array passed will be full of valid ratings from each renter 
 
 // this function will always return a valid rating 
