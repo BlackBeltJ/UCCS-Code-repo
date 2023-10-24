@@ -58,8 +58,11 @@ typedef struct property {
 //Prints the rental property information 
 void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int
 	interval1Nights, unsigned int interval2Nights, double rate, double discount);
+
 //returns only valid input from the user based on the min and max values inclusively
-int getValidInt(int min, int max, int sentinal);
+int getValidIntSentinal(int min, int max, int sentinal);
+// bool scanIntSentinal(const char* const stringInput, int min, int max, int* const integerPtr, int sentinal);
+
 //Calculates the charge based on the number of nights rented
 double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
 	interval2Nights, double rate, double discount);
@@ -71,17 +74,19 @@ void printNightsCharges(unsigned int nights, double charges);
 // functions for ratings
 void printCategories(const char* categories[RENTER_SURVEY_CATEGORIES], size_t totalCategories);
 void getRatings(int rentalSurvey[][RENTER_SURVEY_CATEGORIES], size_t renters_rows, size_t category_columns, int MIN_RATING, int MAX_RATING);
+
 int getValidInt(int MIN_RATING, int MAX_RATING);
+void removeNewLine(char* stringPtr, int size);
+bool scanInt(const char* const stringInput, int min, int max, int* const integerPtr);
+
 void printSurveyResults(const int rentalSurvey[][RENTER_SURVEY_CATEGORIES], size_t renters_rows, size_t category_columns, int MIN_RATING, int MAX_RATING);
 void calculateCategoryAverages(int rentalSurvey[][RENTER_SURVEY_CATEGORIES], double categoryAverages[RENTER_SURVEY_CATEGORIES], size_t renters_rows, size_t ratings_columns);
 void printCategoryData(const double categoryAverages[RENTER_SURVEY_CATEGORIES], size_t totalCategories);
-
 
 // functions for property setup (structure)
 void initializeDefaultPropertyVals(Property* prop, const int minNights, const int maxNights, const double minRate, const double maxRate);
 void setUpProperty(Property* prop);
 void displayOrganization(const Property prop);
-bool getValidIntNEW(const char* const stringInput, int min, int max, int* const integerPtr);
 
 // main function
 int main(void) {
@@ -148,45 +153,14 @@ void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, uns
 }
 
 //returns only valid input from the user based on the min and max values inclusively
-int getValidInt(int min, int max, int sentinal) {
-	int userNightInput = 0;
-	int scanfReturnValue = 0;
+int getValidIntSentinal(int min, int max, int sentinal) {
+	int integer = 0;
 
-	bool isValidInput = false;
-	puts("\nEnter the number of nights you want to rent the property: ");
+	bool isValidInput = scanInt(;
+	// puts("\nEnter the number of nights you want to rent the property: ");
 	
-	// algorithm to check valid input
-	while (isValidInput == false)
-	{
-		// prompt user for nights
-		scanfReturnValue = scanf("%d", &userNightInput); // %d is integer specifier, & symbol is address operator and writes directly back to userNightInput
-		while ((getchar() != '\n')); // clear the input buffer 
-
-		if (scanfReturnValue == 1)
-		{
-			// if scanf returns a 1, that means that data was successfully read (the user entered an integer)
-			// check input against acceptable range
-			if (userNightInput >= min && userNightInput <= max)
-			{
-				isValidInput = true;
-			}
-			else if (userNightInput == sentinal) {
-				isValidInput = true;
-			}
-			else
-			{
-				printf("Error: Not within %d and %d. Please enter the value again:", min, max);
-				isValidInput = false;
-			}
-		}
-		else
-		{
-			// prompt the user for an integer again if they did not enter one initially
-			puts("Error: Not an integer number. Please enter the value again:\n");
-			isValidInput = false;
-		}
-	}
-	return userNightInput; // this function will always return a valid integer 
+	
+	return integer; // this function will always return a valid integer 
 }
 
 //Calculates the charge based on the number of nights rented
@@ -374,42 +348,115 @@ void displayOrganization(const Property prop) {
 }
 
 // getInt starts the process of getting a valid integer, calls getValidIntNEW during function excecution
-int getInt() {
+int getInt(int min, int max) {
 	char inputStr[STRING_LENGTH];
 	int integer = 0;
+	bool isValidInt = false;
 
 	puts("\nEnter an integer: ");
 	fgets(inputStr, STRING_LENGTH, stdin);
-	if (inputStr[(strlen(inputStr) - 1)] == '\n') { // first check to see if there is a newline char \n at end of string
-		inputStr[strlen(inputStr) - 1] = '\0'; // if there is a newline char, replace it with a null char \0
+	removeNewLine(inputStr, strlen(inputStr));
+	//if (inputStr[(strlen(inputStr) - 1)] == '\n') { // first check to see if there is a newline char \n at end of string
+	//	inputStr[strlen(inputStr) - 1] = '\0'; // if there is a newline char, replace it with a null char \0
+	//}
+	// bool validReturnVal = scanInt(inputStr, MAX_RENTAL_NIGHTS, MIN_RENTAL_NIGHTS, &integer);
+	while (!isValidInt) {
+		if (!(scanInt(inputStr, max, min, &integer))) {
+			puts("Invalid input, try again: ");
+			fgets(inputStr, STRING_LENGTH, stdin);
+			removeNewLine(inputStr, strlen(inputStr));
+		}
+		else {
+			if ((integer < min) || (integer > max)) {
+				printf("Value in integer: %d", integer);
+				return integer;
+			}
+			else {
+				printf("Not between %d and %d. Try again. ", min, max);
+			}
+		}
 	}
-	bool validReturnVal = getValidIntNEW(inputStr, MAX_RENTAL_NIGHTS, MIN_RENTAL_NIGHTS, &integer);
-	printf("Value in integer: %d", integer);
+}
 
-	if (validReturnVal == true) {
-		return integer;
+// getInt starts the process of getting a valid integer, calls getValidIntNEW during function excecution
+int getIntSentinal(int min, int max, int sentinal) {
+	char inputStr[STRING_LENGTH];
+	int integer = 0;
+	bool isValidInt = false; 
+
+	puts("\nEnter an integer: ");
+	fgets(inputStr, STRING_LENGTH, stdin);
+	removeNewLine(inputStr, strlen(inputStr));
+	//if (inputStr[(strlen(inputStr) - 1)] == '\n') { // first check to see if there is a newline char \n at end of string
+	//	inputStr[strlen(inputStr) - 1] = '\0'; // if there is a newline char, replace it with a null char \0
+	//}
+
+	// bool validReturnVal = scanInt(inputStr, MAX_RENTAL_NIGHTS, MIN_RENTAL_NIGHTS, &integer);
+	while (!isValidInt) {
+		if (!(scanInt(inputStr, max, min, &integer))) {
+			puts("Invalid input, try again: ");
+			fgets(inputStr, STRING_LENGTH, stdin);
+			removeNewLine(inputStr, strlen(inputStr));
+		}
+		else {
+			if ((integer == sentinal) || ((integer < min) || (integer > max))) {
+				printf("Value in integer: %d", integer);
+				return integer;
+			}
+			else {
+				printf("Not between %d and %d. Try again. ", min, max);
+			}
+		}
 	}
-	else {
-		// need to loop until user enters valid integer
+}
+
+// function takes in a character array (string) and removes the newline character from the end of if it exists
+void removeNewLine(char* stringPtr, int size) {
+	if (stringPtr[(size - 1)] == '\n') { // first check to see if there is a newline char \n at end of string
+		stringPtr[size - 1] = '\0'; // if there is a newline char, replace it with a null char \0
 	}
 }
 
 // function returns true if valid integer (stringInput) was read to variable (var that integerPtr points to) and false otherwise
-bool getValidIntNEW(const char* const stringInput, int max, int min, int* const integerPtr) {
+bool scanInt(const char* const stringInput, int max, int min, int* const integerPtr) {
 
 	char* end = NULL;
 	errno = 0;
 	long intTest = strtol(stringInput, &end, 10); // stops when hits non-integer character
-	// if any of the following conditions return true (if any of the checks do not pass), then the if statement will pass over and continu to the else. 
-	// the only way to enter the if statement and return true is if every single one of the conditions are met
-	if (!(end == stringInput) && !('\0' != *end) && !((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno) && !(intTest > max) && !(intTest < min)) {
+	//// if any of the following conditions return true (if any of the checks do not pass), then the if statement will pass over and continu to the else. 
+	//// the only way to enter the if statement and return true is if every single one of the conditions are met
+	//if (!(end == stringInput) && !('\0' != *end) && !((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno) && !(intTest > max) && !(intTest < min)) {
+	//	*integerPtr = (int)intTest;
+	//	// puts("getValidInt return val: true");
+	//	return true;
+	//}
+	//else {
+	//	// default return value is false. Will only return true if non of the if or else if statements were initiated 
+	//	// puts("getValidInt return val: false");
+	//	return false;
+	//}
+
+	if (end == stringInput) { // checks to see if the pointer end was moved from it's original position (if it found a leading decimal)
+		fprintf(stderr, "%s: not a decimal number\n", stringInput);
+	}
+	else if ('\0' != *end) { // checks to see if the pointer end is pointing to a null character which would mean strtol read through the whole string and ended without finding a non-decimal character
+		fprintf(stderr, "%s: extra characters at end of input: %s\n", stringInput, end);
+	}
+	else if ((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno) {	// checks to see if the value entered was too large or too small for the long type, and checks for errno value to see if user entered max or min value exactly
+		printf("ERANGE: %d", ERANGE);
+		printf("errno: %d", errno);
+		printf(stderr, "%s out of range of type long\n", stringInput);
+	}
+	else if (intTest > INT_MAX) { // checks to see if value entered is too large for the int datatype
+		fprintf(stderr, "%ld greater than INT_MAX\n", intTest);
+	}
+	else if (intTest < INT_MIN) { // checks to see if value entered is too small for the int datatype
+		fprintf(stderr, "%ld less than INT_MIN\n", intTest);
+	}
+	else { // if all the tests were passed, this means the value entered is a valid integer
 		*integerPtr = (int)intTest;
-		puts("getValidInt return val: true");
 		return true;
+		// printf("%d is integer value ", *integerPtr);
 	}
-	else {
-		// default return value is false. Will only return true if non of the if or else if statements were initiated 
-		puts("getValidInt return val: false");
-		return false;
-	}
+	return false;
 }
