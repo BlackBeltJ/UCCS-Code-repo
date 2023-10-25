@@ -51,6 +51,8 @@ typedef struct property {
 	double rate;
 	double discount;
 
+	int numOfRenters;
+
 	char name[STRING_LENGTH];
 	char location[STRING_LENGTH];
 } Property;
@@ -220,9 +222,8 @@ void printCategories(const char* categories[RENTER_SURVEY_CATEGORIES], size_t to
 
 // this function will get ratings from the renters and fill the 2D array with those ratings
 void getRatings(int rentalSurvey[][RENTER_SURVEY_CATEGORIES], size_t renters_rows, size_t category_columns, int min_rating, int max_rating) {
-	static int nextIndexForRating = 0; // static counter to tell function what row to start writing data to in array from function call to function call
-
-	//printf("\n\tRenter %d:", nextIndexForRating); // use static variable so we know exactly where to jump back into the array to write the next ratings
+	static unsigned int nextIndexForRating = 0; // static counter to tell function what row to start writing data to in array from function call to function call
+	// instead of static, pass numOfRenters in structure and use that
 	
 	if (nextIndexForRating < renters_rows) {
 		for (size_t category = 0; category < category_columns; category++)
