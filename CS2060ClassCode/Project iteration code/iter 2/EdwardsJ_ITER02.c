@@ -220,23 +220,27 @@ void printCategories(const char* categories[RENTER_SURVEY_CATEGORIES], size_t to
 
 // this function will get ratings from the renters and fill the 2D array with those ratings
 void getRatings(int rentalSurvey[][RENTER_SURVEY_CATEGORIES], size_t renters_rows, size_t category_columns, int min_rating, int max_rating) {
-	// loop through entire 2D array
-	for (size_t renters = 0; renters < renters_rows; renters++)
-	{
-		printf("\n\tRenter %d:", (int)(renters + 1)); // use the row value + 1 (because index starts at 0) to display the renter number
+	static int nextIndexForRating = 0; // static counter to tell function what row to start writing data to in array from function call to function call
+
+	//printf("\n\tRenter %d:", nextIndexForRating); // use static variable so we know exactly where to jump back into the array to write the next ratings
+	
+	if (nextIndexForRating < renters_rows) {
 		for (size_t category = 0; category < category_columns; category++)
 		{
 			// ask user for each rating	
 			printf("\nEnter your rating for \nCategory %d: ", (int)(category + 1)); // category + 1 because the category index starts at 0 and I want renters to start at 1
-			// verify valid data, use getValidInt()
-			int rating = getValidInt(min_rating, max_rating, SENTINAL_NEG1);
-			// write data to 2D rentalSurvey element
-			rentalSurvey[renters][category] = rating;
+			// verify valid integer
+			int rating = getValidInt(min_rating, max_rating);
+			// write data back to array
+			rentalSurvey[nextIndexForRating][category] = rating;
 		}
+		nextIndexForRating++;
 	}
-	// add static counter to tell function what row to start writing data to
-
-} // by the end of this function, the 2D array passed will be full of valid ratings from each renter 
+	else {
+		puts("Array full!");
+	}
+	
+} // end of function
 
 // this function will always return a valid rating 
 int getValidInt(int MIN_RATING, int MAX_RATING) {
