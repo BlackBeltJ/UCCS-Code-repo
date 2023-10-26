@@ -73,7 +73,7 @@ void printNightsCharges(const Property* propStrucPtr);
 // login function
 bool isLoggedIn(const char* correctID, const char* correctPassword, const unsigned int allowedAttempts, int STR_LEN);
 // rental mode logic function
-void rentalMode(Property* currentPropertyPtr, const int minRating, const int maxRating, size_t rows, size_t columns, const int discountMultiplier, const int sentinal);
+void rentalMode(Property* currentPropertyPtr, const int minRating, const int maxRating, size_t rows, size_t columns, const int discountMultiplier, const int sentinal, const char* correctID, const char* correctPassword, int allowedAttempts, size_t STR_LEN);
 
 // functions for ratings
 void printCategories(const char* categories[RENTER_SURVEY_CATEGORIES], size_t totalCategories);
@@ -128,7 +128,7 @@ int main(void) {
 	Property property1;
 
 	// main main logic and program flow
-	rentalMode(&property1, MINRATING, MAXRATING, VACATION_RENTERS, RENTER_SURVEY_CATEGORIES, DISCOUNT_MULTIPLIER, SENTINAL_NEG1);
+	rentalMode(&property1, MINRATING, MAXRATING, VACATION_RENTERS, RENTER_SURVEY_CATEGORIES, DISCOUNT_MULTIPLIER, SENTINAL_NEG1, CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS, STRING_LENGTH);
 	
 	// this is for when there are no rentals and the owner wants a summary
 	if (property1.totalNights == 0 || property1.totalCharges == 0)
@@ -137,7 +137,7 @@ int main(void) {
 	}
 	else
 	{
-		printNightsCharges(property1.totalNights, property1.totalCharges);
+		printNightsCharges(&property1);
 	}
 }
 
@@ -211,10 +211,10 @@ bool isLoggedIn(const char* correctID, const char* correctPassword, const unsign
 
 	while ((isMatch != true) || (attempts <= allowedAttempts)) {
 		puts("Enter your AirUCCS ID: ");
-		fgets(&id, STR_LEN, stdin);
+		fgets(id, STR_LEN, stdin);
 
 		puts("Enter your AirUCCS password: ");
-		fgets(&password, STR_LEN, stdin);
+		fgets(password, STR_LEN, stdin);
 
 		if (id != correctID) {
 			puts("The ID is incorrect");
@@ -240,7 +240,7 @@ bool isLoggedIn(const char* correctID, const char* correctPassword, const unsign
 // rental mode logic function
 // ================================================================================================
 
-void rentalMode(Property* currentPropertyPtr, const int minRating, const int maxRating, size_t rows, size_t columns, const int discountMultiplier, const int sentinal) {
+void rentalMode(Property* currentPropertyPtr, const int minRating, const int maxRating, size_t rows, size_t columns, const int discountMultiplier, const int sentinal, const char* correctID, const char* correctPassword, int allowedAttempts, size_t STR_LEN) {
 	bool sentinalEntered = false;
 	
 	do {
@@ -250,7 +250,7 @@ void rentalMode(Property* currentPropertyPtr, const int minRating, const int max
 		int nightInput = getValidIntSentinal(currentPropertyPtr->minimumNights, currentPropertyPtr->maximumNights, sentinal);
 
 		if (nightInput == sentinal) {
-			if (isLoggedIn()) { // add isLoggedIn parameters here...
+			if (isLoggedIn(correctID, correctPassword, allowedAttempts, STR_LEN)) { // add isLoggedIn parameters here...
 				sentinalEntered = true;
 			}
 		}
