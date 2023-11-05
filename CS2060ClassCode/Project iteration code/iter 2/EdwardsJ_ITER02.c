@@ -92,11 +92,6 @@ void setUpProperty(Property* propertyPtr, int STR_SIZE, const unsigned int minNi
 // main function
 int main(void) {
 	// rating survey initializations
-	
-	// REMOVE THESE
-	//double categoryAverages[RENTER_SURVEY_CATEGORIES];
-	//int rentalSurvey[VACATION_RENTERS][RENTER_SURVEY_CATEGORIES];
-	// REMOVE THESE
 	const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities" };
 
 	// initialize property structure 
