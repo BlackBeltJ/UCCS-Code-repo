@@ -7,8 +7,6 @@ then input the number of nights they want to rent the property for and receive a
 charge based on the number of nights and the discount rate. The owner of the property can
 also input a special value to receive back a summary of the nights rented and the total
 money made.
-
-UPDATE THIS DESCRIPTION.
 */
 
 #include <stdio.h>
@@ -42,17 +40,17 @@ UPDATE THIS DESCRIPTION.
 // Defining property structure
 // can be declared using the 'Property" tag
 typedef struct property {
-	int minimumNights;
-	int maximumNights;
-	int interval1Nights;
-	int interval2Nights;
+	unsigned int minimumNights;
+	unsigned int maximumNights;
+	unsigned int interval1Nights;
+	unsigned int interval2Nights;
 	double minimumRate;
 	double maximumRate;
 	double rate;
 	double discount;
 
-	int numOfRenters;
-	int totalNights;
+	unsigned int numOfRenters;
+	unsigned int totalNights;
 	double totalCharges;
 
 	int rentalSurvey[VACATION_RENTERS][RENTER_SURVEY_CATEGORIES];
@@ -62,58 +60,46 @@ typedef struct property {
 	char location[STRING_LENGTH];
 } Property;
 
-//Prints the rental property information 
-void displayRentalPropertyInfo(const Property* propStrucPtr, unsigned int minNights, unsigned int maxNights, int discountMult);
-//Calculates the charge based on the number of nights rented
+// Prints the rental property information 
+void displayRentalPropertyInfo(const Property* propStrucPtr, const unsigned int minNights, const unsigned int maxNights, const int discountMult);
+// Calculates the charge based on the number of nights rented
 double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount);
-//Prints the number of nights, and the charge  if there were any rentals
-//Use for printing vacationer charge or for property owner summary
+// Prints the name, locationm, number of nights, and the charge
 void printNightsCharges(const Property* propStrucPtr);
 
 // login function
-bool isLoggedIn(const char* correctID, const char* correctPassword, const unsigned int allowedAttempts, int STR_LEN);
+bool isLoggedIn(const char* correctID, const char* correctPassword, const unsigned int allowedAttempts, const unsigned int STR_LEN);
 // rental mode logic function
-void rentalMode(Property* currentPropertyPtr, const int minRating, const int maxRating, size_t rows, size_t columns, const int discountMultiplier, const int sentinal, const char* correctID, const char* correctPassword, int allowedAttempts, size_t STR_LEN);
+void rentalMode(Property* currentPropertyPtr, const int minRating, const unsigned int maxRating, size_t rows, size_t columns, const unsigned int discountMultiplier, const int sentinal, const char* correctID, const char* correctPassword, const int unsigned allowedAttempts, size_t STR_LEN, const char* categories[RENTER_SURVEY_CATEGORIES]);
 
 // functions for ratings
 void printCategories(const char* categories[RENTER_SURVEY_CATEGORIES], size_t totalCategories);
-void getRatings(Property* propStrucPtr, size_t renters_rows, size_t category_columns, int min_rating, int max_rating);
-void printSurveyResults(const Property* propStrucPtr, size_t renters_rows, size_t category_columns, int min_rating, int max_rating);
+void getRatings(Property* propStrucPtr, size_t renters_rows, size_t category_columns, unsigned int min_rating, unsigned int max_rating, const char* categories[RENTER_SURVEY_CATEGORIES]);
+void printSurveyResults(const Property* propStrucPtr, size_t renters_rows, size_t category_columns, const unsigned int min_rating, const unsigned int max_rating, const char* categories[RENTER_SURVEY_CATEGORIES]);
 void calculateCategoryAverages(Property* propStrucPtr, size_t renters_rows, size_t category_columns);
 void displaySurveyAverages(const Property* propStrucPtr, size_t total_categories);
-//void printCategoryData(const double categoryAverages[RENTER_SURVEY_CATEGORIES], size_t totalCategories);
 
 // getting input functions
-//int getValidIntSentinal(int min, int max, int sentinal);
-int getValidInt(int MIN_RATING, int MAX_RATING);
-int getValidIntSentinal(int min, int max, int sentinal);
+int getValidInt(const unsigned int min, const unsigned int max);
+int getValidIntSentinal(const unsigned int min, const unsigned int max, const unsigned int sentinal);
 void removeNewLine(char* stringPtr, int size);
-bool scanInt(const char* const stringInput/*, int min, int max*/, int* const integerPtr);
+bool scanInt(const char* const stringInput, int* const integerPtr);
 
 // functions for property setup (structure)
-void initializeDefaultPropertyVals(Property* prop, const int minNights, const int maxNights, const double minRate, const double maxRate);
-void setUpProperty(Property* propertyPtr, int STR_SIZE, const int minNights, const int maxNights, const double minRate, const double maxRate);
+void initializeDefaultPropertyVals(Property* prop, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate);
+void setUpProperty(Property* propertyPtr, int STR_SIZE, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate);
 
 // main function
 int main(void) {
-	// constants
-	unsigned int INTERVAL_1_NIGHTS = 0;
-	unsigned int INTERVAL_2_NIGHTS = 0;
-	double RENTAL_RATE = 0;
-	double DISCOUNT = 0;
-
-	unsigned int userNightInput = 0; // NOTE TO SELF: change this to unsigned throughout program
-	unsigned int totalNights = 0; // NOTE TO SELF: change this to unsigned throughout program
-	double totalCharges = 0;
-	
 	// rating survey initializations
 	double categoryAverages[RENTER_SURVEY_CATEGORIES];
 	int rentalSurvey[VACATION_RENTERS][RENTER_SURVEY_CATEGORIES];
 	const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities" };
 
+	// initialize property structure 
 	Property property1;
 
-	// initialize default values for property struct variables
+	// initialize default values for property struct variables so they are not assigned to junk
 	initializeDefaultPropertyVals(&property1, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
 
 	// initialize arrays with 0s
@@ -129,38 +115,41 @@ int main(void) {
 	}
 
 	// main main logic and program flow
+	// log the user in, return true if user logs in correctly, false otherwise
 	bool loggedIn = isLoggedIn(CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS, STRING_LENGTH);
-	
-	// if they logged in, let owner setup property
-	if (loggedIn) {
-		setUpProperty(&property1, STRING_LENGTH, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
-	}
 
-	while (loggedIn) {
-		rentalMode(&property1, MINRATING, MAXRATING, VACATION_RENTERS, RENTER_SURVEY_CATEGORIES, DISCOUNT_MULTIPLIER, SENTINAL_NEG1, CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS, STRING_LENGTH);
-		//if (isLoggedIn(CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS, STRING_LENGTH)) {
-			// this is for when there are no rentals and the owner wants a summary
-			if (property1.totalNights == 0 || property1.totalCharges == 0)
-			{
-				puts("\nThere were no rentals...Exiting program");
-			}
-			else
-			{
-				printNightsCharges(&property1);
-			}
-		//}
-		//else {
-			puts("User not logged in, returning to rental mode.");
-		//}
+	// if the user logged in, enter loop
+	if (loggedIn) {
+		puts("\nLogin successful\n");
+		setUpProperty(&property1, STRING_LENGTH, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
+		rentalMode(&property1, MINRATING, MAXRATING, VACATION_RENTERS, RENTER_SURVEY_CATEGORIES, DISCOUNT_MULTIPLIER, SENTINAL_NEG1, CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS, STRING_LENGTH, surveyCategories);
+		// after rentalMode ends, check the total nights and total charges in the struct
+		if (property1.totalNights == 0 || property1.totalCharges == 0) // this is for when there are no rentals and the owner wants a summary
+		{
+			puts("\nThere were no rentals...Exiting program");
+		}
+		else // there were charges, calculate and display averages
+		{
+			puts("\n==========================================================\n");
+			printNightsCharges(&property1);
+			printCategories(surveyCategories, RENTER_SURVEY_CATEGORIES);
+			calculateCategoryAverages(&property1, VACATION_RENTERS, RENTER_SURVEY_CATEGORIES);
+			displaySurveyAverages(&property1, RENTER_SURVEY_CATEGORIES);
+		}
 	}
-}
+	puts("\n\nExiting AirUCCS.");
+} // end of main
 
 
 // mathy functons
 // ================================================================================================
 
-//Calculates the charge based on the number of nights rented
-double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
+/*	
+	Function description : Calculates the charge based on the number of nights rented
+	parameters: unsigned int nights, unsigned int interval 1, unsigned int interval 2, double rate, double discount
+	return: double charge that was calculated based on nights and discounts
+*/
+ double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
 	interval2Nights, double rate, double discount) {
 	double charge = 0;
 
@@ -192,7 +181,11 @@ double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsig
 	return charge;
 }
 
-// this function reads through the 2D rating array and calculates the average rating for each category and writes it to the categoryAverages array
+/* 
+	description: this function reads through the 2D rating array and calculates the average rating for each category and writes it to the categoryAverages array
+	parameters: property structure, sizes of array dimensions
+	return: nothing
+*/
 void calculateCategoryAverages(Property* propStrucPtr, size_t renters_rows, size_t category_columns) {
 	// read integers from each row and calculate average
 	// loop through 2D rentalSurvey array and get sum total of each category
@@ -204,7 +197,7 @@ void calculateCategoryAverages(Property* propStrucPtr, size_t renters_rows, size
 			sum += propStrucPtr->rentalSurvey[renter][category]; // add each rating to total sum
 		}
 		// divide sum by amount of renters to get average
-		double average = ((double)sum / (double)renters_rows); // parse everything to double so there is no loss of data during the calculation
+		double average = ((double)sum / (double)(propStrucPtr->numOfRenters)); // parse everything to double so there is no loss of data during the calculation
 		// store average in categoryAverages array
 		propStrucPtr->categoryAverages[category] = average;
 	}
@@ -216,26 +209,31 @@ void calculateCategoryAverages(Property* propStrucPtr, size_t renters_rows, size
 // login function
 // ================================================================================================
 
-bool isLoggedIn(const char* correctID, const char* correctPassword, const unsigned int allowedAttempts, const int STR_LEN) {
+/*
+	description: validates user login against correct ID and password
+	parameters: constant character array (string) correctID, constant string correctPassword, constant unsigned int maximum allowed attempts, constant int string length
+	return: bool depending on whether the user entered the correct credentials, they entered correctly = true, they did not enter correctly = false
+*/
+bool isLoggedIn(const char* correctID, const char* correctPassword, const unsigned int allowedAttempts, const unsigned int STR_LEN) {
 	char id[] = { "Default ID"};
 	char password[] = { "Default password" };
 	puts("AirUCCS Rental Property Owner Login");
 	bool isMatch = false;
 	int attempts = 0;
 
-	while (!(isMatch == true) && (attempts <= allowedAttempts)) {
+	while (!(isMatch == true) && (attempts < allowedAttempts)) {
 		puts("Enter your AirUCCS ID: ");
 		fgets(id, STR_LEN, stdin);
 
 		puts("Enter your AirUCCS password: ");
 		fgets(password, STR_LEN, stdin);
 
-		// remove newline char from input
+		// removes newline char from input
 		removeNewLine(id, strlen(id));
 		removeNewLine(password, strlen(password));
 
 		if (strcmp(id, correctID) != 0) {
-			if (strcmp(password, correctID) != 0) {
+			if (strcmp(password, correctPassword) != 0) {
 				puts("The ID is incorrect");
 				puts("The password is incorrect");
 			}
@@ -247,13 +245,9 @@ bool isLoggedIn(const char* correctID, const char* correctPassword, const unsign
 			puts("The password is incorrect");
 		}
 		else if ((strcmp(id, correctID) == 0) && (strcmp(password, correctPassword) == 0)) {
-			puts("Logging in...");
 			isMatch = true;
 		}
-		else {
-			attempts++;
-			printf("Try again. Tries remaining: %d", (allowedAttempts - attempts));
-		}
+		attempts++;
 	}
 	return isMatch;
 }
@@ -263,31 +257,47 @@ bool isLoggedIn(const char* correctID, const char* correctPassword, const unsign
 
 // rental mode logic function
 // ================================================================================================
-
-void rentalMode(Property* currentPropertyPtr, const int minRating, const int maxRating, size_t rows, size_t columns, const int discountMultiplier, const int sentinal, const char* correctID, const char* correctPassword, int allowedAttempts, size_t STR_LEN) {
-	bool sentinalEntered = false;
-	//int nightInput = getValidIntSentinal(currentPropertyPtr->minimumNights, currentPropertyPtr->maximumNights, sentinal);
+/*
+	description: this is the main loop of the program and is responsible for handling all the non-owner user interactions. Renting, rating, repeat. 
+	parameters: property structure by reference, constant unsigned int minRating, constant unsigned int maxRating, array dimensions, constant unsigned int discountMultiplier, constant int sentinal value, constant string correctID and correctPassword, constant int unsigned allowed attempts, string length, constant string array of survey categories
+	return: nothing, modifies values in structure by reference pointers
+*/
+void rentalMode(Property* currentPropertyPtr, const int minRating, const unsigned int maxRating, size_t rows, size_t columns, const unsigned int discountMultiplier, const int sentinal, const char* correctID, const char* correctPassword, const int unsigned allowedAttempts, size_t STR_LEN, const char* categories[RENTER_SURVEY_CATEGORIES]) {
+	bool loggedOut = false;
 
 	do {
 		displayRentalPropertyInfo(currentPropertyPtr, currentPropertyPtr->minimumNights, currentPropertyPtr->maximumNights, discountMultiplier);
-		printSurveyResults(currentPropertyPtr, rows, columns, minRating, maxRating);
-		puts("\nEnter the number nights. ");
-		int nightInput = getValidIntSentinal(currentPropertyPtr->minimumNights, currentPropertyPtr->maximumNights, sentinal);
+		printSurveyResults(currentPropertyPtr, rows, columns, minRating, maxRating, categories);
+		if (currentPropertyPtr->numOfRenters < VACATION_RENTERS) {
+			puts("\n\nEnter the number of nights to rent: ");
+			int nightInput = getValidIntSentinal(currentPropertyPtr->minimumNights, currentPropertyPtr->maximumNights, sentinal);
 
-		if (nightInput == sentinal) {
-			if (isLoggedIn(correctID, correctPassword, allowedAttempts, STR_LEN)) { // add isLoggedIn parameters here...
-				sentinalEntered = true;
+			if (nightInput == sentinal) {
+				if (isLoggedIn(correctID, correctPassword, allowedAttempts, STR_LEN)) {
+					puts("\nLogged out successfully, displaying results.\n");
+					loggedOut = true;
+				}
+				else {
+					puts("\nUser not logged in, returning to rental mode.\n");
+					loggedOut = false;
+				}
+			}
+			else {
+				// calculate charge
+				double charge = calculateCharges(nightInput, currentPropertyPtr->interval1Nights, currentPropertyPtr->interval2Nights,
+					currentPropertyPtr->rate, currentPropertyPtr->discount);
+
+				// incremement totalNights and totalCharges
+				currentPropertyPtr->totalCharges += charge;
+				currentPropertyPtr->totalNights += nightInput;
+
+				getRatings(currentPropertyPtr, rows, columns, minRating, maxRating, categories);
 			}
 		}
 		else {
-			// incremement totalNights
-			double charge = calculateCharges(nightInput, currentPropertyPtr->interval1Nights, currentPropertyPtr->interval2Nights,
-				currentPropertyPtr->rate, currentPropertyPtr->discount);
-
-			currentPropertyPtr->totalCharges += charge;
-			currentPropertyPtr->totalNights += nightInput;
+			loggedOut = true;
 		}
-	} while (!sentinalEntered);
+	} while (!loggedOut);
 }
 
 // ================================================================================================
@@ -295,7 +305,11 @@ void rentalMode(Property* currentPropertyPtr, const int minRating, const int max
 
 // rating functions
 // ================================================================================================
-
+/*
+	description: displays the character arrays of categories
+	parameters: constant string of categories, number of categories
+	return: nothing
+*/
 void printCategories(const char* categories[RENTER_SURVEY_CATEGORIES], size_t totalCategories)
 {
 	//loop to display each category horizontally
@@ -307,11 +321,17 @@ void printCategories(const char* categories[RENTER_SURVEY_CATEGORIES], size_t to
 	puts(""); // start new line of output
 }
 
-// this function will get ratings from the renters and fill the 2D array with those ratings
-void getRatings(Property* propStrucPtr, size_t renters_rows, size_t category_columns, int min_rating, int max_rating) {
+/*
+	description: this function will get ratings from the renters and fill the 2D array with those ratings
+	parameters: property structure by reference, array dimensions, unsigned int min and max ratings, constant string of categories
+	return: nothing
+*/
+void getRatings(Property* propStrucPtr, size_t renters_rows, size_t category_columns, unsigned int min_rating, unsigned int max_rating, const char* categories[RENTER_SURVEY_CATEGORIES]) {
 	unsigned int nextIndexForRating = propStrucPtr->numOfRenters; 
+	printCategories(categories, category_columns);
 	
 	if (nextIndexForRating < renters_rows) {
+
 		for (size_t category = 0; category < category_columns; category++)
 		{
 			// ask user for each rating	
@@ -326,32 +346,58 @@ void getRatings(Property* propStrucPtr, size_t renters_rows, size_t category_col
 	else {
 		puts("Array full!");
 	}
-} // end of function
+}
 
-// this function displays the results of the rating data to the console (reads through 2D array)
-void printSurveyResults(const Property* propStrucPtr, size_t renters_rows, size_t category_columns, int min_rating, int max_rating) {
-	// loop through array and display the each row and column
-	for (size_t renter = 0; renter < renters_rows; renter++) {
-		printf("\nSurvey %d: ", (int)(renter + 1)); // row + 1 because index starts at 0 and we want to start at 1
-		for (size_t category = 0; category < category_columns; category++) {
-			printf("\t%d", propStrucPtr->rentalSurvey[renter][category]); // print each rating
+/*
+	description: this function displays the results of the rating data to the console (reads through 2D array)
+	parameters: constant property struct, array dimensions, constant unsigned ints for min and max ratings, constant string of categories
+	return: nothing
+*/
+void printSurveyResults(const Property* propStrucPtr, size_t renters_rows, size_t category_columns, const unsigned int min_rating, const unsigned int max_rating, const char* categories[RENTER_SURVEY_CATEGORIES]) {
+	size_t category = 0;
+	printf("%s", "\nSurvey results");
+
+	// loop through array and display the each row and column if ratings exist
+	if (propStrucPtr->numOfRenters != 0) {	
+		printCategories(categories, category_columns);
+		for (size_t renter = 0; renter < renters_rows; renter++) {
+			if ((propStrucPtr->rentalSurvey[renter - 1][category] >= min_rating) && (propStrucPtr->rentalSurvey[renter][category] <= max_rating)) { // checks if the current row has ratings in it. If not, it does not display the row. renter - 1 because renter is incremented in the previous line and I need to reverse that to check the array element.
+				printf("\nSurvey %d: ", (int)(renter + 1)); // renter + 1 because index starts at 0 and we want to start at 1
+				for (category = 0; category < category_columns; category++) {
+					printf("\t%d", propStrucPtr->rentalSurvey[renter][category]); // print each rating
+				}
+			}
 		}
+	}
+	else {
+		puts("\nNo ratings currently");
 	}
 }
 
-//Prints the number of nights, and the charge  if there were any rentals
-//Use for printing  vacationer charge or for property owner summary
+/*
+	description: Prints the name and location of property, summary of nights and charges 
+	parameters: constant property struct
+	return: nothing, console output
+*/
 void printNightsCharges(const Property* propStrucPtr) {
+	printf("%s", "\nRental Property Report");
+	printf("Name: %s", propStrucPtr->name);
+	printf("Location: %s", propStrucPtr->location);
 	puts("\nRental Property Owner Total Summary");
-	printf("\nNights\tCharge\n%d\t$%.0f\n", propStrucPtr->totalNights, propStrucPtr->totalCharges);
+	printf("\nNights\tCharge\n%d\t$%.0f", propStrucPtr->totalNights, propStrucPtr->totalCharges);
 }
 
+/*
+	description: displays the survey averages to console
+	parameters: constant property structure, number of categories
+	return: nothing, console output
+*/
 void displaySurveyAverages(const Property* propStrucPtr, size_t total_categories) {
 	// this function prints the average of each category
 	// iterate through categoryAverages array and display results
-	printf("%s", "\nRating averages:");
+	printf("%s", "Rating averages:");
 	for (size_t category = 0; category < total_categories; category++) {
-		printf("\t\t%.2f", propStrucPtr->categoryAverages[category]);
+		printf("\t\t\t%.2f", propStrucPtr->categoryAverages[category]);
 	}
 }
 
@@ -360,8 +406,12 @@ void displaySurveyAverages(const Property* propStrucPtr, size_t total_categories
 
 // property functions
 // ================================================================================================
-
-void initializeDefaultPropertyVals(Property* prop, const int minNights, const int maxNights, const double minRate, const double maxRate) {
+/*
+	description: initializes property structure variables to default values so they don't contain junk
+	parameters: property struct, const unsigned int min and max nights, const double min and max rates
+	return: nothing
+*/
+void initializeDefaultPropertyVals(Property* prop, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate) {
 	prop->minimumNights = minNights;
 	prop->maximumNights = maxNights;
 	prop->minimumRate = minRate;
@@ -376,21 +426,25 @@ void initializeDefaultPropertyVals(Property* prop, const int minNights, const in
 	prop->numOfRenters = 0;
 }
 
-void setUpProperty(Property* propertyPtr, int STR_SIZE, const int minNights, const int maxNights, const double minRate, const double maxRate) {
+/*
+	description: prompts owner for property rental information, calls input validation functions and writes input to property structure values
+	parameters: property structure, string size, const unsigned int min and max nights, const double min and max rates
+	return: nothing
+*/
+void setUpProperty(Property* propertyPtr, int STR_SIZE, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate) {
 	// use fgets to read string info
 	puts("Set up rental property information");
 
 	puts("Enter the number of nights until first discount: ");
 	propertyPtr->interval1Nights = getValidInt(minNights, maxNights); // use & because passing primative datatype
-	//while ((getchar() != '\n'));
 	puts("Enter the number of nights until second discount: ");
-	propertyPtr->interval2Nights = getValidInt(propertyPtr->interval1Nights, maxNights);
+	propertyPtr->interval2Nights = getValidInt(propertyPtr->interval1Nights + 1, maxNights);
 
 	puts("Enter the nightly rental rate: ");
 	propertyPtr->rate = getValidInt(minRate, maxRate);
 
 	puts("Enter the discount: ");
-	propertyPtr->discount = getValidInt(minRate, maxRate);
+	propertyPtr->discount = getValidInt(minRate, propertyPtr->rate);
 
 	puts("Enter the property name: ");
 	fgets(propertyPtr->name, STR_SIZE, stdin); // dont need & because passing array which already holds address
@@ -398,15 +452,19 @@ void setUpProperty(Property* propertyPtr, int STR_SIZE, const int minNights, con
 	fgets(propertyPtr->location, STR_SIZE, stdin);
 }
 
-//Prints the rental property information 
-void displayRentalPropertyInfo(const Property* propStrucPtr, unsigned int minNights, unsigned int maxNights, int discountMult) {
-	// %.2f is rounding to 2 decimal places
+/*
+	description: Prints the rental property information 
+	parameters: constant property structure, constant unsigned int min and max nights, const int discount multiplier 
+	return: nothing, console output
+*/
+void displayRentalPropertyInfo(const Property* propStrucPtr, const unsigned int minNights, const unsigned int maxNights, const int discountMult) {
+	// %.0f is rounding to 0 decimal places
 	printf("\nName: %s", propStrucPtr->name);
 	printf("Location: %s", propStrucPtr->location);
 	printf("Rental Property can be rented for %d to %d nights.", minNights, maxNights);
-	printf("\n%.2f rate a night for the first %d nights", propStrucPtr->rate, propStrucPtr->interval1Nights);
-	printf("\n%.2f discount rate a night for nights %d to %d", propStrucPtr->discount, propStrucPtr->interval1Nights, propStrucPtr->interval2Nights);
-	printf("\n%.2f discount rate a night for each remaining night over %d.", (propStrucPtr->discount * discountMult), propStrucPtr->interval2Nights);
+	printf("\n$%.0f rate a night for the first %d nights", propStrucPtr->rate, propStrucPtr->interval1Nights);
+	printf("\n$%.0f discount rate a night for nights %d to %d", propStrucPtr->discount, propStrucPtr->interval1Nights + 1, propStrucPtr->interval2Nights);
+	printf("\n$%.0f discount rate a night for each remaining night over %d.", (propStrucPtr->discount * discountMult), propStrucPtr->interval2Nights);
 }
 
 // ================================================================================================
@@ -414,21 +472,24 @@ void displayRentalPropertyInfo(const Property* propStrucPtr, unsigned int minNig
 
 // input validation functions
 // ================================================================================================
-
-// getInt starts the process of getting a valid integer, calls getValidIntNEW during function excecution
-int getValidInt(int min, int max) {
+/*
+	description: getValidInt starts the process of getting a valid integer, calls scanInt during function excecution
+	parameters: constant unsigned min and max values
+	return: a valid integer that is within the range of the min and max values
+*/
+int getValidInt(const unsigned int min, const unsigned int max) {
 	char inputStr[STRING_LENGTH];
 	int integer = 0;
+	bool result = false;
 
 	do {
-		// puts("\nEnter an integer: ");
 		fgets(inputStr, STRING_LENGTH, stdin);
 		removeNewLine(inputStr, strlen(inputStr));
-		bool result = scanInt(inputStr/*, min, max*/, &integer);
+		result = scanInt(inputStr, &integer);
 
 		if (result) {
 			if ((integer < min) || (integer > max)) {
-				printf("Not between %d and %d. Try again. ", min, max);
+				printf("Not between %d and %d. Try again: ", min, max);
 				result = false;
 			}
 			else {
@@ -436,26 +497,30 @@ int getValidInt(int min, int max) {
 			}
 		}
 		else {
-			printf("Not valid input. Please enter an integer between %d and %d", min, max);
+			printf("Not valid input. Please enter an integer between %d and %d: ", min, max);
 		}
-	} while (!(scanInt(inputStr/*, min, max*/, &integer)));
+	} while (!result);
 	return integer;
 }
 
-// getInt starts the process of getting a valid integer, calls getValidIntNEW during function excecution
-int getValidIntSentinal(int min, int max, int sentinal) {
+/*
+	description: getValidIntSentinal starts the process of getting a valid integer with a sentinal check, calls scanInt during function excecution
+	parameters: constant unsigned min and max, and sentinal values
+	return: a valid integer that is within the range of the min and max values and checks for the sentinal value
+*/
+int getValidIntSentinal(const unsigned int min, const unsigned int max, const unsigned int sentinal) {
 	char inputStr[STRING_LENGTH];
 	int integer = 0;
+	bool result = false;
 
 	do {
-		// puts("\nEnter an integer: ");
 		fgets(inputStr, STRING_LENGTH, stdin);
 		removeNewLine(inputStr, strlen(inputStr));
-		bool result = scanInt(inputStr/*, min, max*/, &integer);
+		result = scanInt(inputStr, &integer);
 
 		if (result) {
 			if (((integer < min) || (integer > max)) && (integer != sentinal)) {
-				printf("Not between %d and %d. Try again. ", min, max);
+				printf("Not between %d and %d. Try again: ", min, max);
 				result = false;
 			}
 			else {
@@ -463,60 +528,43 @@ int getValidIntSentinal(int min, int max, int sentinal) {
 			}
 		}
 		else {
-			printf("Not valid input. Please enter an integer between %d and %d", min, max);
+			printf("Not valid input. Please enter an integer between %d and %d: ", min, max);
 		}
-	} while (!(scanInt(inputStr/*, min, max*/, &integer)));
+	} while (!result);
 	return integer;
 }
 
-// function takes in a character array (string) and removes the newline character from the end of if it exists
+/*
+	description: function takes in a character array (string) and removes the newline character from the end of if it exists, replacing it with null char \0
+	parameters: pointer to string input, size of string
+	return: nothing, modifies string directly from within function using a pointer
+*/
 void removeNewLine(char* stringPtr, int size) {
 	if (stringPtr[(size - 1)] == '\n') { // first check to see if there is a newline char \n at end of string
 		stringPtr[size - 1] = '\0'; // if there is a newline char, replace it with a null char \0
 	}
 }
 
-// function returns true if valid integer (stringInput) was read to variable (var that integerPtr points to) and false otherwise
-bool scanInt(const char* const stringInput/*, int min, int max*/, int* const integerPtr) {
+/*
+	description: function returns true if valid integer (stringInput) was read to variable (var that integerPtr points to) and false otherwise
+	parameters: constant pointer to a constant character input, pointer to a constant integer 
+	return: true or false based on if the input was valid, valid = true, not valid = false
+*/
+bool scanInt(const char* const stringInput, int* const integerPtr) {
 
 	char* end = NULL;
 	errno = 0;
 	long intTest = strtol(stringInput, &end, 10); // stops when hits non-integer character
 	// if any of the following conditions return true (if any of the checks do not pass), then the if statement will pass over and continu to the else. 
 	// the only way to enter the if statement and return true is if every single one of the conditions are met
-	if (!(end == stringInput) && !('\0' != *end) && !((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno) /* && (intTest <= max) && (intTest >= min) */) {
+	if (!(end == stringInput) && !('\0' != *end) && !((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno)) {
 		*integerPtr = (int)intTest;
 		return true;
 	}
-	
 	else {
-		// default return value is false. Will only return true if non of the if or else if statements were initiated 
+		// default return value is false. Will only return true if non of the "if" conditions were returned  
 		return false;
 	}
-
-	//if (end == stringInput) { // checks to see if the pointer end was moved from it's original position (if it found a leading decimal)
-	//	fprintf(stderr, "%s: not a decimal number\n", stringInput);
-	//}
-	//else if ('\0' != *end) { // checks to see if the pointer end is pointing to a null character which would mean strtol read through the whole string and ended without finding a non-decimal character
-	//	fprintf(stderr, "%s: extra characters at end of input: %s\n", stringInput, end);
-	//}
-	//else if ((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno) {	// checks to see if the value entered was too large or too small for the long type, and checks for errno value to see if user entered max or min value exactly
-	//	printf("ERANGE: %d", ERANGE);
-	//	printf("errno: %d", errno);
-	//	printf(stderr, "%s out of range of type long\n", stringInput);
-	//}
-	//else if (intTest > INT_MAX) { // checks to see if value entered is too large for the int datatype
-	//	fprintf(stderr, "%ld greater than INT_MAX\n", intTest);
-	//}
-	//else if (intTest < INT_MIN) { // checks to see if value entered is too small for the int datatype
-	//	fprintf(stderr, "%ld less than INT_MIN\n", intTest);
-	//}
-	//else { // if all the tests were passed, this means the value entered is a valid integer
-	//	*integerPtr = (int)intTest;
-	//	return true;
-	//	// printf("%d is integer value ", *integerPtr);
-	//}
-	//return false;
 }
 
 // ================================================================================================
