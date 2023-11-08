@@ -22,50 +22,31 @@ typedef struct pet {
 int strcmpCaseIgnore(const char* string1, const char* string2, int string_length);
 void insertPetLoop(Pet** headPetPtr, int str_len);
 void insertPets(Pet** headPetPtr, char* petName, int petAge, int str_len);
+char validateYesNo();
 void initPet(Pet* petPtr);
-void displayPets(Pet** headPetPtr);
+void displayPets(Pet* headPetPtr);
 
 void removeNewLine(char* stringPtr, int size);
 int getValidInt(const unsigned int min, const unsigned int max);
 bool scanInt(const char* const stringInput, int* const integerPtr);
-//void writePetsToFile();
-//void removePet();
-//void clearList();
+
+void deletePetLoop(Pet** headPetPtr, int str_len);
+void deletePet(Pet** headPtr, char* petName);
+//void freeRemainingPets(Pet** headPtr);
+void writePetsToFile(Pet* headPetPtr, char* fileName);
 
 int main() {
-	Pet *petPtr = malloc(sizeof(Pet));
-	initPet(petPtr);
+	Pet* headPetPtr = NULL;
 
-	char* string1 = { "String1" };
-	char* string2 = { "striNg1" };
-	int returnVal = strcmpCaseIgnore(string1, string2, strlen(string1));
-	//printf("\n\nstrcmpCaseIgnore return value: %d\n\n", returnVal);
 
-	//insertPets(&petPtr, STR_LEN);
-
-	Pet* pet1 = malloc(sizeof(Pet));
-	if (pet1 != NULL) {
-		strncpy(pet1->name, "name1", strlen(pet1->name));
-		pet1->age = 5;
-	}
-	
-	Pet* pet2 = malloc(sizeof(Pet));
-	if (pet2 != NULL) {
-		strncpy(pet2->name, "name2", strlen(pet2->name));
-		pet2->age = 7;
-	}
-
-	//Pet* pet3 = malloc(sizeof(Pet));
-	/*if (pet3 != NULL) {
-		strncpy(pet3->name, "name3", strlen(pet3->name));
-		pet3->age = 2;
-	}*/
-
-	displayPets(&petPtr);
+	insertPetLoop(&headPetPtr, STR_LEN);
+	displayPets(headPetPtr);
+	//writePetsToFile()
+	deletePetLoop(&headPetPtr, STR_LEN);
+	displayPets(headPetPtr);
 }
 
 /*
-
 */
 int strcmpCaseIgnore(const char* string1, const char* string2, int string_length) {
 	char holder1[STR_LEN];
@@ -83,10 +64,12 @@ int strcmpCaseIgnore(const char* string1, const char* string2, int string_length
 }
 
 /*
-
 */
 void insertPetLoop(Pet** headPetPtr, int str_len) {
-	char userResponse[STR_LEN] = "n";
+	char userResponse[] = { " " };
+	char noResponse[] = { "n" };
+	removeNewLine(&noResponse, strlen(&noResponse));
+
 	do {
 		char petName[STR_LEN];
 		char userInput[STR_LEN];
@@ -105,13 +88,35 @@ void insertPetLoop(Pet** headPetPtr, int str_len) {
 		//
 		insertPets(headPetPtr, petName, petAge, str_len);
 		//
+		
+		displayPets(*headPetPtr);
 
-		puts("\nDo you want to add another pet? (y or n): ");
-		fgets(userResponse, STR_LEN, stdin);
-		removeNewLine(userResponse, strlen(userResponse));
+		puts("\nDo you want to add another pet?\n");
+		char response = validateYesNo();
 
-	} while ((strncmp(userResponse, "n", strlen(userResponse))));
+		strncpy(&userResponse, &response, strlen(&userResponse));
+		removeNewLine(&userResponse, strlen(&userResponse));
+
+		//printf("string1: %s\tstring2: %s", &userResponse, &noResponse);
+		//printf("\nstrcmp: %d", strcmp(&userResponse, &noResponse));
+
+	} while ((strcmp(&userResponse, &noResponse)) != 0);
 }
+
+char validateYesNo() {
+	char validYesNo;
+
+	do {
+		puts("Please enter (y)es or (n)o:");
+		validYesNo = getchar();
+		while (getchar() != '\n');
+
+		validYesNo = tolower(validYesNo);
+
+	} while (validYesNo != 'y' && validYesNo != 'n');
+
+	return  validYesNo;
+} //End validateYesNo
 
 /*
 
@@ -133,23 +138,16 @@ void insertPets(Pet **headPetPtr, char* petName, int petAge, int str_len) {
 		Pet* currentPetPtr = *headPetPtr;
 
 		// check that new name is less than current pet pointer name
-		while (currentPetPtr != NULL /* && lastPetPtr != NULL*/ && strcmpCaseIgnore(currentPetPtr->name, petName, max((int)(strlen(currentPetPtr->name)), (int)(strlen(petName)))) > 0) {
-			//lastPetPtr = currentPetPtr;
-			//currentPetPtr = currentPetPtr->nextPtr;
-			lastPetPtr->nextPtr = newPetPtr;
-			newPetPtr->nextPtr = currentPetPtr;
+		while (currentPetPtr != NULL && strcmpCaseIgnore(currentPetPtr->name, petName, strlen(currentPetPtr->name)) < 0) {
+			lastPetPtr = currentPetPtr;
+			currentPetPtr = currentPetPtr->nextPtr;
 		}
-
 		if (lastPetPtr == NULL) {
 			*headPetPtr = newPetPtr;
-			//lastPetPtr = newPetPtr;
-			//currentPetPtr = newPetPtr;
 		}
 		else {
 			lastPetPtr->nextPtr = newPetPtr;
-
 		}
-
 		newPetPtr->nextPtr = currentPetPtr;
 	}
 	else {
@@ -157,13 +155,27 @@ void insertPets(Pet **headPetPtr, char* petName, int petAge, int str_len) {
 	}
 }
 
-void displayPets(Pet** headPetPtr) {
-	Pet* currentPetPtr = *headPetPtr;
+void displayPets(Pet* headPetPtr) {
+	// 
+	if (headPetPtr != NULL)
+	{
+		printf("%s", "\n\nThe list is: ");
+		//
+		Pet* currentPetPtr = headPetPtr;
 
-	do {
-		printf("\nPet name: %s\tPet age: %d", currentPetPtr->name, currentPetPtr->age);
-		currentPetPtr = currentPetPtr->nextPtr;
-	} while (currentPetPtr->nextPtr != NULL);
+		//
+		while (currentPetPtr != NULL)
+		{
+			// display and go to next node
+			printf("\nname: %s\tage: %d", currentPetPtr->name, currentPetPtr->age);
+			currentPetPtr = currentPetPtr->nextPtr;
+		}
+	}
+	// 
+	else
+	{
+		puts("List is empty");
+	}
 }
 
 void initPet(Pet* petPtr) {
@@ -221,5 +233,87 @@ bool scanInt(const char* const stringInput, int* const integerPtr) {
 	else {
 		// default return value is false. Will only return true if non of the "if" conditions were returned  
 		return false;
+	}
+}
+
+/*
+*/
+void deletePetLoop(Pet** headPetPtr, int str_len) {
+	char userResponse[] = { " " };
+	char noResponse[] = { "n" };
+	removeNewLine(&noResponse, strlen(&noResponse));
+
+	do {
+		char petName[STR_LEN];
+		char userInput[STR_LEN];
+
+		puts("\nEnter name of pet to delete: ");
+		fgets(petName, str_len, stdin);
+		removeNewLine(petName, strlen(petName));
+
+		//
+		deletePet(headPetPtr, petName);
+		//
+
+		displayPets(*headPetPtr);
+
+		puts("\nDo you want to delete another pet?\n");
+		char response = validateYesNo();
+
+		strncpy(&userResponse, &response, strlen(&userResponse));
+		removeNewLine(&userResponse, strlen(&userResponse));
+	} while (headPetPtr != NULL && (strcmp(&userResponse, &noResponse)) != 0);
+}
+/*
+*/
+void deletePet(Pet** headPetPtr, char* petName) {
+	// initialize trailing pet pointer and current pet pointer
+	Pet* lastPetPtr = NULL;
+	Pet* currentPetPtr = *headPetPtr;
+	
+	if (*headPetPtr != NULL)
+	{
+		// if the first pet has the name to delete
+		if (strcmpCaseIgnore((*headPetPtr)->name, petName, strlen((*headPetPtr)->name)) == 0)
+		{
+			*headPetPtr = (*headPetPtr)->nextPtr;
+			// deallocate mem
+			free(currentPetPtr);
+			currentPetPtr = NULL;
+		}
+		else // if the first pet does not have the name to delete
+		{
+			while (currentPetPtr != NULL && strcmpCaseIgnore(currentPetPtr->name, petName, strlen(currentPetPtr->name)) != 0)
+			{
+				// advance the pointers to next pet
+				lastPetPtr = currentPetPtr;
+				currentPetPtr = currentPetPtr->nextPtr;
+			}
+			if (currentPetPtr != NULL)
+			{
+				lastPetPtr->nextPtr = currentPetPtr->nextPtr;
+				// deallocate mem
+				free(currentPetPtr);
+				currentPetPtr = NULL;
+			}
+			// if the name was not found in linked list
+			else
+			{
+				puts("Pet to delete not found!");
+			}
+		}
+	}
+	else // the list is empty
+	{
+		puts("There aren't any pets in the list!");
+	}
+}
+
+/*
+*/
+void writePetsToFile(Pet* headPetPtr, char* fileName) {
+	
+	while (headPetPtr != NULL) {
+		// add code to iterate through linked list and write each pet name to file
 	}
 }
