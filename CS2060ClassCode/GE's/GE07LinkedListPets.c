@@ -32,8 +32,8 @@ bool scanInt(const char* const stringInput, int* const integerPtr);
 
 void deletePetLoop(Pet** headPetPtr, int str_len);
 void deletePet(Pet** headPtr, char* petName);
-//void freeRemainingPets(Pet** headPtr);
-void writePetsToFile(Pet* headPetPtr, char* fileName);
+void freeRemainingPets(Pet** headPtr);
+void writePetsToFile(FILE* filePtr, Pet** headPetPtr);
 
 int main() {
 	Pet* headPetPtr = NULL;
@@ -43,6 +43,8 @@ int main() {
 	displayPets(headPetPtr);
 	//writePetsToFile()
 	deletePetLoop(&headPetPtr, STR_LEN);
+	displayPets(headPetPtr);
+	freeRemainingPets(&headPetPtr);
 	displayPets(headPetPtr);
 }
 
@@ -255,14 +257,16 @@ void deletePetLoop(Pet** headPetPtr, int str_len) {
 		deletePet(headPetPtr, petName);
 		//
 
-		displayPets(*headPetPtr);
+		if (*headPetPtr != NULL) {
+			displayPets(*headPetPtr);
+			puts("\nDo you want to delete another pet?\n");
+			char response = validateYesNo();
 
-		puts("\nDo you want to delete another pet?\n");
-		char response = validateYesNo();
-
-		strncpy(&userResponse, &response, strlen(&userResponse));
-		removeNewLine(&userResponse, strlen(&userResponse));
-	} while (headPetPtr != NULL && (strcmp(&userResponse, &noResponse)) != 0);
+			strncpy(&userResponse, &response, strlen(&userResponse));
+			removeNewLine(&userResponse, strlen(&userResponse));
+		}
+		
+	} while (*headPetPtr != NULL && (strcmp(userResponse, noResponse)) != 0);
 }
 /*
 */
@@ -311,9 +315,48 @@ void deletePet(Pet** headPetPtr, char* petName) {
 
 /*
 */
-void writePetsToFile(Pet* headPetPtr, char* fileName) {
+void freeRemainingPets(Pet** headPetPtr) {
+	Pet* currentPetPtr = *headPetPtr;
+	Pet* nextPetPtr = NULL;
+
+	while (currentPetPtr != NULL)
+	{
+		nextPetPtr = currentPetPtr->nextPtr;
+		free(currentPetPtr);
+		currentPetPtr = nextPetPtr;
+	}
+
+	*headPetPtr = NULL;
+	puts("\n==============================\nAll pets have been deleted.\n==============================\n");
+}
+
+/*
+*/
+void writePetsToFile(FILE* filePtr, Pet** headPetPtr) {
+	FILE* writePtr = NULL;
 	
-	while (headPetPtr != NULL) {
-		// add code to iterate through linked list and write each pet name to file
+	if ((writePtr = fopen("pets.txt", "w")) == NULL) {
+		puts("File could not be opened");
+	}
+	else {
+		rewind(filePtr);
+		fprintf(writePtr, "%-6s%-16s", "Pet name", "Pet age");
+
+		while (!feof(filePtr)) {
+			if (*headPetPtr != NULL)
+			{
+				// initialize trailing pet pointer and current pet pointer
+				Pet* lastPetPtr = NULL;
+				Pet* currentPetPtr = *headPetPtr;
+
+				while (currentPetPtr != NULL)
+				{
+					fprintf(writePtr, "%-6s%-16d", (currentPetPtr)->name, (currentPetPtr)->age);
+					// advance the pointer to next pet
+					currentPetPtr = currentPetPtr->nextPtr;
+				}
+			}
+		}
+		fclose(writePtr);
 	}
 }
