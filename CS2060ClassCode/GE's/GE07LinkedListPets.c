@@ -20,20 +20,27 @@ typedef struct pet {
 
 // function prototypes
 int strcmpCaseIgnore(const char* string1, const char* string2, int string_length);
-void insertPets(Pet* petPtr);
-//void displayPets();
+void insertPets(Pet** headPetPtr, int str_len);
+void initPet(Pet* petPtr);
+void removeNewLine(char* stringPtr, int size);
+int getValidInt(const unsigned int min, const unsigned int max);
+bool scanInt(const char* const stringInput, int* const integerPtr);
+void displayPets(Pet** headPetPtr);
 //void writePetsToFile();
 //void removePet();
 //void clearList();
 
 int main() {
 	Pet *petPtr = malloc(sizeof(Pet));
+	initPet(petPtr);
+
 	char* string1 = { "String1" };
 	char* string2 = { "striNg1" };
 	int returnVal = strcmpCaseIgnore(string1, string2, strlen(string1));
 	//printf("\n\nstrcmpCaseIgnore return value: %d\n\n", returnVal);
 
-	insertPets(petPtr);
+	insertPets(&petPtr, STR_LEN);
+	displayPets(&petPtr);
 }
 
 /*
@@ -50,7 +57,6 @@ int strcmpCaseIgnore(const char* string1, const char* string2, int string_length
 		holder1[element] = tolower(string1[element]);
 		holder2[element] = tolower(string2[element]);
 	}
-
 	//printf("lowercase strings: \"%s\" and \"%s\"", holder1, holder2);
 	return strcmp(holder1, holder2);; // (-1, 0, 1 etc)
 }
@@ -58,36 +64,131 @@ int strcmpCaseIgnore(const char* string1, const char* string2, int string_length
 /*
 
 */
-void insertPets(Pet* headPetPtr) {
-	char userResponse[STR_LEN];
+void insertPets(Pet **headPetPtr, int str_len) {
+	char userResponse[STR_LEN] = "n";
+	do {
+		// initialize and declare memory for new pet "node"
+		Pet* newPetPtr = malloc(sizeof(struct pet));
+		initPet(newPetPtr);
 
-	puts("\nDo you want to add another pet? (y or n): ");
-	fgets(userResponse, STR_LEN, stdin);
-
-	while (strncmp(userResponse, "n", strlen(userResponse))) {
 		char petName[STR_LEN];
-		char petAge[STR_LEN];
+		char userInput[STR_LEN];
+		int petAge = 0;
 
-		puts("Enter name of pet: ");
-		fgets(petName, STR_LEN, stdin);
-		puts("Enter age of pet: ");
-		fgets(petAge, STR_LEN, stdin);
-		
-		if (headPetPtr->nextPtr == NULL) {
-			strncpy(headPetPtr->name, petName, strlen(headPetPtr->name));
-			headPetPtr->age = (int)(petAge);
-			headPetPtr->nextPtr = NULL;
+		if (newPetPtr != NULL) {
+
+			puts("Enter name of pet: ");
+			fgets(petName, str_len, stdin);
+			removeNewLine(petName, strlen(petName));
+
+			puts("Enter age of pet: ");
+			fgets(userInput, str_len, stdin);
+			removeNewLine(userInput, strlen(userInput));
+
+			scanInt(userInput, &petAge);
+			
+			// initialize data for new pet 
+			strncpy(newPetPtr->name, petName, strlen(newPetPtr->name));
+			newPetPtr->age = petAge;
+			newPetPtr->nextPtr = NULL;
+
+			// initialize trailing pet pointer and current pet pointer
+			Pet* lastPetPtr = NULL;
+			Pet* currentPetPtr = *headPetPtr;
+
+			// check that new name is less than current pet pointer name
+			while (currentPetPtr != NULL /* && lastPetPtr != NULL*/ && strcmpCaseIgnore(currentPetPtr->name, petName, max((int)(strlen(currentPetPtr->name)), (int)(strlen(petName)))) > 0) {
+				//lastPetPtr = currentPetPtr;
+				//currentPetPtr = currentPetPtr->nextPtr;
+				lastPetPtr->nextPtr = newPetPtr;
+				newPetPtr->nextPtr = currentPetPtr;
+			}
+
+			if (lastPetPtr == NULL) {
+				*headPetPtr = newPetPtr;
+				lastPetPtr = newPetPtr;
+				//currentPetPtr = newPetPtr;
+			}
+			else {
+				lastPetPtr->nextPtr = newPetPtr;
+
+			}
+
+			newPetPtr->nextPtr = currentPetPtr;
+
+			puts("\nDo you want to add another pet? (y or n): ");
+			fgets(userResponse, STR_LEN, stdin);
+			removeNewLine(userResponse, strlen(userResponse));
 		}
 		else {
-			Pet* currentPtr = headPetPtr;
-
-			while (currentPtr->name < currentPtr->nextPtr->name) {
-				currentPtr->nextPtr = currentPtr->nextPtr->nextPtr;
-			}
-			//currentPtr->nextPtr = something lol;
+			printf("No memory to create node for name \"%s\" and age \"%d\"", petName, petAge);
 		}
-		
-		
+	} while ((strncmp(userResponse, "n", strlen(userResponse))));
+}
 
+void displayPets(Pet** headPetPtr) {
+	Pet* currentPetPtr = *headPetPtr;
+
+	do {
+		printf("\nPet name: %s\tPet age: %d", currentPetPtr->name, currentPetPtr->age);
+		currentPetPtr = currentPetPtr->nextPtr;
+	} while (currentPetPtr->nextPtr != NULL);
+}
+
+void initPet(Pet* petPtr) {
+	char defaultName[STR_LEN] = {"Default name"};
+	
+	petPtr->age = 0;
+	strncpy(petPtr->name, defaultName, strlen(petPtr->name));
+	petPtr->nextPtr = NULL;
+}
+
+void removeNewLine(char* stringPtr, int size) {
+	if (stringPtr[(size - 1)] == '\n') { // first check to see if there is a newline char \n at end of string
+		stringPtr[size - 1] = '\0'; // if there is a newline char, replace it with a null char \0
+	}
+}
+
+int getValidInt(const unsigned int min, const unsigned int max) {
+	char inputStr[STR_LEN];
+	int integer = 0;
+	bool result = false;
+
+	do {
+		fgets(inputStr, STR_LEN, stdin);
+		removeNewLine(inputStr, strlen(inputStr));
+		result = scanInt(inputStr, &integer); // check if input is integer 
+
+		// range check integer
+		if (result) {
+			if ((integer < min) || (integer > max)) {
+				printf("Not between %d and %d. Try again: ", min, max);
+				result = false;
+			}
+			else {
+				result = true;
+			}
+		}
+		else {
+			printf("Not valid input. Please enter an integer between %d and %d: ", min, max);
+		}
+	} while (!result);
+	return integer;
+}
+
+bool scanInt(const char* const stringInput, int* const integerPtr) {
+
+	char* end = NULL;
+	errno = 0;
+	long intTest = strtol(stringInput, &end, 10); // stops when hits non-integer character
+	// if any of the following conditions return true (if any of the checks do not pass), then the if statement will pass over and continu to the else. 
+	// the only way to enter the if statement and return true is if every single one of the conditions are met
+	if (!(end == stringInput) && !('\0' != *end) && !((LONG_MIN == intTest || LONG_MAX == intTest) && ERANGE == errno)) {
+		*integerPtr = (int)intTest;
+		return true;
+	}
+	else {
+		// default return value is false. Will only return true if non of the "if" conditions were returned  
+		return false;
 	}
 }
