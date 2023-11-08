@@ -20,12 +20,14 @@ typedef struct pet {
 
 // function prototypes
 int strcmpCaseIgnore(const char* string1, const char* string2, int string_length);
-void insertPets(Pet** headPetPtr, int str_len);
+void insertPetLoop(Pet** headPetPtr, int str_len);
+void insertPets(Pet** headPetPtr, char* petName, int petAge, int str_len);
 void initPet(Pet* petPtr);
+void displayPets(Pet** headPetPtr);
+
 void removeNewLine(char* stringPtr, int size);
 int getValidInt(const unsigned int min, const unsigned int max);
 bool scanInt(const char* const stringInput, int* const integerPtr);
-void displayPets(Pet** headPetPtr);
 //void writePetsToFile();
 //void removePet();
 //void clearList();
@@ -39,7 +41,26 @@ int main() {
 	int returnVal = strcmpCaseIgnore(string1, string2, strlen(string1));
 	//printf("\n\nstrcmpCaseIgnore return value: %d\n\n", returnVal);
 
-	insertPets(&petPtr, STR_LEN);
+	//insertPets(&petPtr, STR_LEN);
+
+	Pet* pet1 = malloc(sizeof(Pet));
+	if (pet1 != NULL) {
+		strncpy(pet1->name, "name1", strlen(pet1->name));
+		pet1->age = 5;
+	}
+	
+	Pet* pet2 = malloc(sizeof(Pet));
+	if (pet2 != NULL) {
+		strncpy(pet2->name, "name2", strlen(pet2->name));
+		pet2->age = 7;
+	}
+
+	//Pet* pet3 = malloc(sizeof(Pet));
+	/*if (pet3 != NULL) {
+		strncpy(pet3->name, "name3", strlen(pet3->name));
+		pet3->age = 2;
+	}*/
+
 	displayPets(&petPtr);
 }
 
@@ -64,66 +85,76 @@ int strcmpCaseIgnore(const char* string1, const char* string2, int string_length
 /*
 
 */
-void insertPets(Pet **headPetPtr, int str_len) {
+void insertPetLoop(Pet** headPetPtr, int str_len) {
 	char userResponse[STR_LEN] = "n";
 	do {
-		// initialize and declare memory for new pet "node"
-		Pet* newPetPtr = malloc(sizeof(struct pet));
-		initPet(newPetPtr);
-
 		char petName[STR_LEN];
 		char userInput[STR_LEN];
 		int petAge = 0;
 
-		if (newPetPtr != NULL) {
+		puts("Enter name of pet: ");
+		fgets(petName, str_len, stdin);
+		removeNewLine(petName, strlen(petName));
 
-			puts("Enter name of pet: ");
-			fgets(petName, str_len, stdin);
-			removeNewLine(petName, strlen(petName));
+		puts("Enter age of pet: ");
+		fgets(userInput, str_len, stdin);
+		removeNewLine(userInput, strlen(userInput));
 
-			puts("Enter age of pet: ");
-			fgets(userInput, str_len, stdin);
-			removeNewLine(userInput, strlen(userInput));
+		scanInt(userInput, &petAge);
 
-			scanInt(userInput, &petAge);
+		//
+		insertPets(headPetPtr, petName, petAge, str_len);
+		//
+
+		puts("\nDo you want to add another pet? (y or n): ");
+		fgets(userResponse, STR_LEN, stdin);
+		removeNewLine(userResponse, strlen(userResponse));
+
+	} while ((strncmp(userResponse, "n", strlen(userResponse))));
+}
+
+/*
+
+*/
+void insertPets(Pet **headPetPtr, char* petName, int petAge, int str_len) {
+	// initialize and declare memory for new pet "node"
+	Pet* newPetPtr = malloc(sizeof(struct pet));
+	initPet(newPetPtr);
+
+	if (newPetPtr != NULL) {
 			
-			// initialize data for new pet 
-			strncpy(newPetPtr->name, petName, strlen(newPetPtr->name));
-			newPetPtr->age = petAge;
-			newPetPtr->nextPtr = NULL;
+		// initialize data for new pet 
+		strncpy(newPetPtr->name, petName, strlen(newPetPtr->name));
+		newPetPtr->age = petAge;
+		newPetPtr->nextPtr = NULL;
 
-			// initialize trailing pet pointer and current pet pointer
-			Pet* lastPetPtr = NULL;
-			Pet* currentPetPtr = *headPetPtr;
+		// initialize trailing pet pointer and current pet pointer
+		Pet* lastPetPtr = NULL;
+		Pet* currentPetPtr = *headPetPtr;
 
-			// check that new name is less than current pet pointer name
-			while (currentPetPtr != NULL /* && lastPetPtr != NULL*/ && strcmpCaseIgnore(currentPetPtr->name, petName, max((int)(strlen(currentPetPtr->name)), (int)(strlen(petName)))) > 0) {
-				//lastPetPtr = currentPetPtr;
-				//currentPetPtr = currentPetPtr->nextPtr;
-				lastPetPtr->nextPtr = newPetPtr;
-				newPetPtr->nextPtr = currentPetPtr;
-			}
-
-			if (lastPetPtr == NULL) {
-				*headPetPtr = newPetPtr;
-				lastPetPtr = newPetPtr;
-				//currentPetPtr = newPetPtr;
-			}
-			else {
-				lastPetPtr->nextPtr = newPetPtr;
-
-			}
-
+		// check that new name is less than current pet pointer name
+		while (currentPetPtr != NULL /* && lastPetPtr != NULL*/ && strcmpCaseIgnore(currentPetPtr->name, petName, max((int)(strlen(currentPetPtr->name)), (int)(strlen(petName)))) > 0) {
+			//lastPetPtr = currentPetPtr;
+			//currentPetPtr = currentPetPtr->nextPtr;
+			lastPetPtr->nextPtr = newPetPtr;
 			newPetPtr->nextPtr = currentPetPtr;
+		}
 
-			puts("\nDo you want to add another pet? (y or n): ");
-			fgets(userResponse, STR_LEN, stdin);
-			removeNewLine(userResponse, strlen(userResponse));
+		if (lastPetPtr == NULL) {
+			*headPetPtr = newPetPtr;
+			//lastPetPtr = newPetPtr;
+			//currentPetPtr = newPetPtr;
 		}
 		else {
-			printf("No memory to create node for name \"%s\" and age \"%d\"", petName, petAge);
+			lastPetPtr->nextPtr = newPetPtr;
+
 		}
-	} while ((strncmp(userResponse, "n", strlen(userResponse))));
+
+		newPetPtr->nextPtr = currentPetPtr;
+	}
+	else {
+		printf("No memory to create node for name \"%s\" and age \"%d\"", petName, petAge);
+	}
 }
 
 void displayPets(Pet** headPetPtr) {
