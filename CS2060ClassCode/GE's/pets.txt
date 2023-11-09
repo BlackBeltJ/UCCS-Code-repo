@@ -1,2 +1,4 @@
 Format: (pet name) (pet age)
-chris 	4                         
+agel  	4                         
+chris 	5                         
+phil  	3                         

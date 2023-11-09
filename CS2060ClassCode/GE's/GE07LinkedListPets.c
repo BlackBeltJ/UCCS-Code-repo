@@ -43,7 +43,7 @@ bool scanInt(const char* const stringInput, int* const integerPtr);
 void deletePetLoop(Pet** headPetPtr, int str_len);
 void deletePet(Pet** headPtr, char* petName);
 void freeRemainingPets(Pet** headPtr);
-void writePetsToFile(FILE* filePtr, Pet** headPetPtr);
+void writePetsToFile(FILE* filePtr, Pet* headPetPtr);
 
 // main func
 int main() {
@@ -53,7 +53,7 @@ int main() {
 	insertPetLoop(&headPetPtr, STR_LEN);
 	displayPets(headPetPtr);
 
-	writePetsToFile(filePtr, &headPetPtr);
+	writePetsToFile(filePtr, headPetPtr);
 
 	deletePetLoop(&headPetPtr, STR_LEN);
 	displayPets(headPetPtr);
@@ -156,8 +156,8 @@ void insertPets(Pet **headPetPtr, char* petName, int petAge, int str_len) {
 	Pet* newPetPtr = malloc(sizeof(struct pet));
 	initPet(newPetPtr);
 
-	if (newPetPtr != NULL) {
-			
+	if (newPetPtr != NULL) // checks that memory was allocated successfully
+	{ 
 		// initialize data for new pet 
 		strncpy(newPetPtr->name, petName, strlen(newPetPtr->name));
 		newPetPtr->age = petAge;
@@ -167,17 +167,19 @@ void insertPets(Pet **headPetPtr, char* petName, int petAge, int str_len) {
 		Pet* lastPetPtr = NULL;
 		Pet* currentPetPtr = *headPetPtr;
 
-		// check that new name is less than current pet pointer name
+		// check that new name is less than current pet pointer name (alphabetical order check)
 		while (currentPetPtr != NULL && strcmpCaseIgnore(currentPetPtr->name, petName, strlen(currentPetPtr->name)) < 0) {
+			// next two lines insert new pet before current pet 
 			lastPetPtr = currentPetPtr;
 			currentPetPtr = currentPetPtr->nextPtr;
 		}
-		if (lastPetPtr == NULL) {
+		if (lastPetPtr == NULL) { // if first pet in list
 			*headPetPtr = newPetPtr;
 		}
-		else {
+		else { // if last pet in list
 			lastPetPtr->nextPtr = newPetPtr;
 		}
+		// advance pointer to next pet
 		newPetPtr->nextPtr = currentPetPtr;
 	}
 	else {
@@ -186,19 +188,19 @@ void insertPets(Pet **headPetPtr, char* petName, int petAge, int str_len) {
 }
 
 /*
-description:
-parameters:
-return:
+description: takes in a head pointer to linked list and returns the values of all the pets 
+parameters: single pointer to head Pet struct in linked list
+return: nothing
 */
 void displayPets(Pet* headPetPtr) {
-	// 
+	// checks that there are pets in list
 	if (headPetPtr != NULL)
 	{
 		printf("%s", "\n\nThe list is: ");
-		//
+		// declares new pet pointer for iteration
 		Pet* currentPetPtr = headPetPtr;
 
-		//
+		// loops until current pet pointer is NULL (reached end of list)
 		while (currentPetPtr != NULL)
 		{
 			// display and go to next node
@@ -206,7 +208,7 @@ void displayPets(Pet* headPetPtr) {
 			currentPetPtr = currentPetPtr->nextPtr;
 		}
 	}
-	// 
+	// there are no elements in list to begin with
 	else
 	{
 		puts("List is empty");
@@ -214,9 +216,9 @@ void displayPets(Pet* headPetPtr) {
 }
 
 /*
-description:
-parameters:
-return:
+description: initializes default pet values so not junk
+parameters: single pointer to Pet type
+return: nothing
 */
 void initPet(Pet* petPtr) {
 	char defaultName[STR_LEN] = {"Default name"};
@@ -227,9 +229,9 @@ void initPet(Pet* petPtr) {
 }
 
 /*
-description:
-parameters:
-return:
+description: removes new line character from string passed
+parameters: string to remove newline from and size of that string
+return: nothing
 */
 void removeNewLine(char* stringPtr, int size) {
 	if (stringPtr[(size - 1)] == '\n') { // first check to see if there is a newline char \n at end of string
@@ -238,9 +240,9 @@ void removeNewLine(char* stringPtr, int size) {
 }
 
 /*
-description:
-parameters:
-return:
+description: getValidInt starts the process of getting a valid integer, calls scanInt during function excecution
+parameters: constant unsigned min and max values
+return: a valid integer that is within the range of the min and max values
 */
 int getValidInt(const unsigned int min, const unsigned int max) {
 	char inputStr[STR_LEN];
@@ -270,9 +272,9 @@ int getValidInt(const unsigned int min, const unsigned int max) {
 }
 
 /*
-description:
-parameters:
-return:
+description: function returns true if valid integer (stringInput) was read to variable (var that integerPtr points to) and false otherwise
+parameters: constant pointer to a constant character input, pointer to a constant integer
+return: true or false based on if the input was valid, valid = true, not valid = false
 */
 bool scanInt(const char* const stringInput, int* const integerPtr) {
 
@@ -292,9 +294,10 @@ bool scanInt(const char* const stringInput, int* const integerPtr) {
 }
 
 /*
-description:
-parameters:
-return:
+description: this is the looping logic for deleting pets from the list. prompts user for choice (y or n) and name of pet to delete. calls deletePet() to 
+	actually delete the pets from list
+parameters: double pointer to head pointer of linked list, integer string length
+return: nothing, deletes pets using reference pointers to update linked list on calling stack
 */
 void deletePetLoop(Pet** headPetPtr, int str_len) {
 	char userResponse[] = { " " };
@@ -303,7 +306,6 @@ void deletePetLoop(Pet** headPetPtr, int str_len) {
 
 	do {
 		char petName[STR_LEN];
-		//char userInput[STR_LEN];
 
 		puts("\nEnter name of pet to delete: ");
 		fgets(petName, str_len, stdin);
@@ -318,7 +320,6 @@ void deletePetLoop(Pet** headPetPtr, int str_len) {
 			puts("\nDo you want to delete another pet?\n");
 			char response = validateYesNo();
 			
-			// removed & from userResponse's, could break things
 			strncpy(userResponse, &response, strlen(userResponse));
 			removeNewLine(userResponse, strlen(userResponse));
 		}
@@ -326,16 +327,16 @@ void deletePetLoop(Pet** headPetPtr, int str_len) {
 }
 
 /*
-description:
-parameters:
-return:
+description: deletes pet with passed name from list if it exists
+parameters: double pointer to head pointer of linked list and string pet name to search for
+return: nothing
 */
 void deletePet(Pet** headPetPtr, char* petName) {
 	// initialize trailing pet pointer and current pet pointer
 	Pet* lastPetPtr = NULL;
 	Pet* currentPetPtr = *headPetPtr;
 	
-	if (*headPetPtr != NULL)
+	if (*headPetPtr != NULL) // checks that memory was allocated successfully
 	{
 		// if the first pet has the name to delete
 		if (strcmpCaseIgnore((*headPetPtr)->name, petName, strlen((*headPetPtr)->name)) == 0)
@@ -400,37 +401,43 @@ void freeRemainingPets(Pet** headPetPtr) {
 }
 
 /*
-description:
-parameters:
-return:
+description: writes name and age of each pet to a file
+parameters: pointer to file address and pointer to address of head linked list pet
+return: nothing
 */
-void writePetsToFile(FILE* filePtr, Pet** headPetPtr) {
+void writePetsToFile(FILE* filePtr, Pet* headPetPtr) {
 	FILE* writePtr = NULL;
 	
+	// need to add direct path to file "pets.txt"
 	// C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCode/GE's/ <-- file path to program
-	if ((writePtr = fopen("C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCode/GE's/pets.txt", "w")) == NULL) {
+	if ((writePtr = fopen("C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCode/GE's/pets.txt", "w")) == NULL) { 
 		puts("File could not be opened");
 	}
 	else {
 		fprintf(writePtr, "Format: (pet name) (pet age)");
+		// boolean flag variable
 		bool stop = false;
 
+		// loops until end of file or boolean flag is caught
 		while (!feof(writePtr) && !stop) {
-			
-			if (*headPetPtr != NULL)
+			// checks that pets exist in linked list
+			if (headPetPtr != NULL)
 			{
 				// initialize current pet pointer
-				Pet* currentPetPtr = *headPetPtr;
-
+				Pet* currentPetPtr = headPetPtr;
+				// loops until reached end of linked list
 				while (currentPetPtr != NULL)
 				{
+					// write data to file in format "name	age"
 					fprintf(writePtr, "\n%-6s\t%-26d", (currentPetPtr)->name, (currentPetPtr)->age);
 					// advance the pointer to next pet
 					currentPetPtr = currentPetPtr->nextPtr;
 				}
+				// set flag to true when the linked list iteration has completed
 				stop = true;
 			}
 		}
+		// close file
 		fclose(writePtr);
 	}
 }
