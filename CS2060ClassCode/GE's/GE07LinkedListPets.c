@@ -101,6 +101,7 @@ void insertPetLoop(Pet** headPetPtr, int str_len) {
 		char userInput[STR_LEN];
 		int petAge = 0;
 
+		// prompt for pet info
 		puts("Enter name of pet: ");
 		fgets(petName, str_len, stdin);
 		removeNewLine(petName, strlen(petName));
@@ -111,7 +112,7 @@ void insertPetLoop(Pet** headPetPtr, int str_len) {
 
 		scanInt(userInput, &petAge);
 
-		//
+		// call insert pets passing head pointer, name, age and length to actually insert the pet into list
 		insertPets(headPetPtr, petName, petAge, str_len);
 		//
 		
@@ -122,7 +123,7 @@ void insertPetLoop(Pet** headPetPtr, int str_len) {
 
 		strncpy(userResponse, &response, strlen(userResponse));
 		removeNewLine(userResponse, strlen(userResponse));
-	} while ((strcmp(userResponse, noResponse)) != 0);
+	} while ((strcmp(userResponse, noResponse)) != 0); // check that user entered "n" or something else
 }
 
 /*
@@ -174,10 +175,10 @@ void insertPets(Pet **headPetPtr, char* petName, int petAge, int str_len) {
 			currentPetPtr = currentPetPtr->nextPtr;
 		}
 		if (lastPetPtr == NULL) { // if first pet in list
-			*headPetPtr = newPetPtr;
+			*headPetPtr = newPetPtr; // assign head pointer to the new pet
 		}
 		else { // if last pet in list
-			lastPetPtr->nextPtr = newPetPtr;
+			lastPetPtr->nextPtr = newPetPtr; // assign last pointer to new pet
 		}
 		// advance pointer to next pet
 		newPetPtr->nextPtr = currentPetPtr;
@@ -307,14 +308,16 @@ void deletePetLoop(Pet** headPetPtr, int str_len) {
 	do {
 		char petName[STR_LEN];
 
+		// prompt for pet name to delete
 		puts("\nEnter name of pet to delete: ");
 		fgets(petName, str_len, stdin);
 		removeNewLine(petName, strlen(petName));
 
-		//
+		// call delete pet passing head pointer and name to actually delete the pet from list
 		deletePet(headPetPtr, petName);
 		//
 
+		// checks that list actually has a pet to delete
 		if (*headPetPtr != NULL) {
 			displayPets(*headPetPtr);
 			puts("\nDo you want to delete another pet?\n");
@@ -323,7 +326,7 @@ void deletePetLoop(Pet** headPetPtr, int str_len) {
 			strncpy(userResponse, &response, strlen(userResponse));
 			removeNewLine(userResponse, strlen(userResponse));
 		}
-	} while (*headPetPtr != NULL && (strcmp(userResponse, noResponse)) != 0);
+	} while (*headPetPtr != NULL && (strcmp(userResponse, noResponse)) != 0); // check that user entered "n" or something else
 }
 
 /*
@@ -341,6 +344,7 @@ void deletePet(Pet** headPetPtr, char* petName) {
 		// if the first pet has the name to delete
 		if (strcmpCaseIgnore((*headPetPtr)->name, petName, strlen((*headPetPtr)->name)) == 0)
 		{
+			// assign value of head pointer to address of next pet node
 			*headPetPtr = (*headPetPtr)->nextPtr;
 			// deallocate mem
 			free(currentPetPtr);
@@ -354,8 +358,9 @@ void deletePet(Pet** headPetPtr, char* petName) {
 				lastPetPtr = currentPetPtr;
 				currentPetPtr = currentPetPtr->nextPtr;
 			}
-			if (currentPetPtr != NULL)
+			if (currentPetPtr != NULL) // if not at end of list
 			{
+				// increment last pointer 
 				lastPetPtr->nextPtr = currentPetPtr->nextPtr;
 				// deallocate mem
 				free(currentPetPtr);
