@@ -14,7 +14,7 @@ int main(void) {
    FILE *cfPtr = NULL; // accounts.dat file pointer
 
    // fopen opens the file; exits if file cannot be opened
-   if ((cfPtr = fopen("accounts.dat", "rb")) == NULL) {
+   if ((cfPtr = fopen("C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCodeFall2023-main/CS2060ClassCodeFall2023-main/examples/ch11/accounts.dat", "rb")) == NULL) {
       puts("File could not be opened.");
    } 
    else { 
