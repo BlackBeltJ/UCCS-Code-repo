@@ -392,7 +392,7 @@ void printNightsCharges(const Property* propStrucPtr) {
 	printf("Name: %s", propStrucPtr->name);
 	printf("Location: %s", propStrucPtr->location);
 	puts("\nRental Property Owner Total Summary");
-	printf("\nNights\tCharge\n%d\t$%.0f", propStrucPtr->totalNights, propStrucPtr->totalCharges);
+	printf("\nRenters\tNights\tCharge\n%d\t$%.0f", propStrucPtr->numOfRenters, propStrucPtr->totalNights, propStrucPtr->totalCharges);
 }
 
 /*

@@ -1,4 +1,8 @@
 Format: (pet name) (pet age)
-agel  	4                         
-chris 	5                         
-phil  	3                         
+ancient	10                        
+angel 	4                         
+chris 	3                         
+dingo 	5                         
+dongo 	4                         
+frier 	2                         
+paul  	5                         
