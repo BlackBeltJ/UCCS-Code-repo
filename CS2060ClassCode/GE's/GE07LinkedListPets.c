@@ -415,7 +415,7 @@ void writePetsToFile(FILE* filePtr, Pet* headPetPtr) {
 	
 	// need to add direct path to file "pets.txt"
 	// C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCode/GE's/ <-- file path to program
-	if ((writePtr = fopen("C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCode/GE's/pets.txt", "w")) == NULL) { 
+	if ((writePtr = fopen("C:/pets.txt", "w")) == NULL) { 
 		puts("File could not be opened");
 	}
 	else {
