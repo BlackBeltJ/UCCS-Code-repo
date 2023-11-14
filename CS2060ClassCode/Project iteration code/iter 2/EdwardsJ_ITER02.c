@@ -21,14 +21,14 @@ money made.
 #define STRING_LENGTH 80
 //Two dimensional array storage amounts for rows and columns of surve data
 #define VACATION_RENTERS 5
-#define RENTER_SURVEY_CATEGORIES 3
+#define RENTER_SURVEY_CATEGORIES 4
 //Rental property rating ranges
 #define MINRATING 1
 #define MAXRATING 5
 //Rental property login and sentinal values
-#define CORRECT_ID "id1"
-#define CORRECT_PASSCODE "ABCD"
-#define LOGIN_MAX_ATTEMPTS 3
+#define CORRECT_ID "id"
+#define CORRECT_PASSCODE "ab"
+#define LOGIN_MAX_ATTEMPTS 2
 #define SENTINAL_NEG1 -1
 //rental property constant ranges
 #define MIN_RENTAL_NIGHTS 1
@@ -92,7 +92,7 @@ void setUpProperty(Property* propertyPtr, int STR_SIZE, const unsigned int minNi
 // main function
 int main(void) {
 	// rating survey initializations
-	const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities" };
+	const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities" , "cat4"};
 
 	// initialize property structure 
 	Property property1;
@@ -392,7 +392,7 @@ void printNightsCharges(const Property* propStrucPtr) {
 	printf("Name: %s", propStrucPtr->name);
 	printf("Location: %s", propStrucPtr->location);
 	puts("\nRental Property Owner Total Summary");
-	printf("\nRenters\tNights\tCharge\n%d\t$%.0f", propStrucPtr->numOfRenters, propStrucPtr->totalNights, propStrucPtr->totalCharges);
+	printf("\nRenters\tNights\tCharge\n%d\t%d\t$%.0f", propStrucPtr->numOfRenters, propStrucPtr->totalNights, propStrucPtr->totalCharges);
 }
 
 /*
