@@ -36,6 +36,8 @@ money made.
 #define MIN_RATE 1
 #define MAX_RATE 1000
 #define DISCOUNT_MULTIPLIER 2
+// folder path
+#define FOLDERPATH "C:/Users/black/Desktop/UCCS-Code-Repo/CS2060ClassCode/Project iteration code/iter 3";
 
 // Defining property structure
 // can be declared using the 'Property" tag
