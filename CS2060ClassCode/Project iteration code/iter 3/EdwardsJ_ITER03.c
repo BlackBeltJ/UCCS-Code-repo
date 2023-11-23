@@ -40,7 +40,7 @@ UPDATE desc
 #define MAX_RATE 1000
 #define DISCOUNT_MULTIPLIER 2
 // folder path
-#define FOLDERPATH "C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCode/Project iteration code/iter 3/properties.txt";
+#define FOLDERPATH "C:/Users/black/Desktop/UCCS-Code-repo/fundraiser/"
 
 
 // Defining property structure
@@ -111,7 +111,10 @@ int getValidInt(const unsigned int min, const unsigned int max);
 bool scanInt(const char* const stringInput, int* const integerPtr);
 
 void freeRemainingProperties(Property** headPropPtr);
-void writePropsToFile(Property* headPropPtr);
+void writePropsToFile(Property* headPropPtr, char* folderPath, const char* categories[RENTER_SURVEY_CATEGORIES]);
+void printCategoriesAndRatingsToFile(Property* propStrucPtr, FILE* filePtr, const char* categories[RENTER_SURVEY_CATEGORIES], size_t totalCategories);
+void printNightsChargesToFile(Property* propStrucPtr, FILE* filePtr);
+void replaceCharsInString(char* stringFilePathPtr, char charToScanFor, char replaceWithChar, size_t str_len);
 //
 
 // main function
@@ -119,15 +122,11 @@ int main(void) {
 	// rating survey initializations
 	const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities" , "cat4"};
 
-	// initialize property structure 
-	//Property property1;
-	// initialize headPtr...
+	// initialize master headPtr
 	Property* headPtr = NULL;
 
-	// initialize default values for property struct variables so they are not assigned to junk
-	//initializeDefaultPropertyVals(&property1, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
+	
 
-	// main main logic and program flow
 	// log the user in, return true if user logs in correctly, false otherwise
 	bool loggedIn = isLoggedIn(CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS, STRING_LENGTH);
 
@@ -171,8 +170,9 @@ int main(void) {
 		{
 			puts("List is empty");
 		}
-
-		writePropsToFile(headPtr);
+		// write property results to files
+		writePropsToFile(headPtr, FOLDERPATH, surveyCategories);
+		// deallocate remaining memory for all existing property structs
 		freeRemainingProperties(&headPtr);
 	}
 	puts("\nExiting AirUCCS. :)");
@@ -348,7 +348,7 @@ void rentalMode(Property** headPropPtr, const int minRating, const unsigned int 
 }
 
 // ================================================================================================
-
+ 
 
 // rating functions
 // ================================================================================================
@@ -699,6 +699,9 @@ int strcmpCaseIgnore(const char* string1, const char* string2, int string_length
 	strncpy(holder1, string1, sizeof(holder1));
 	strncpy(holder2, string2, sizeof(holder2));
 
+	removeNewLine(holder1, strlen(holder1));
+	removeNewLine(holder2, strlen(holder2));
+
 	// for each element in the holder strings, change to lowercase
 	for (int element = 0; element < string_length; element++) {
 		holder1[element] = tolower(string1[element]);
@@ -858,42 +861,116 @@ description: writes name and age of each pet to a file
 parameters: pointer to file address and pointer to address of head linked list pet
 return: nothing
 */
-void writePropsToFile(Property* headPropPtr) {
-	FILE* writePtr = NULL;
+void writePropsToFile(Property* headPropPtr, char* folderPath, const char* categories[RENTER_SURVEY_CATEGORIES]) {
+	// checks that there are props in list
+	if (headPropPtr != NULL)
+	{
+		// declares new prop pointer for iteration
+		Property* currentPropPtr = headPropPtr;
 
-	// need to add direct path to file
-	if ((writePtr = fopen("C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCode/Project iteration code/iter 3/properties.txt", "w")) == NULL) {
-		puts("\nFile could not be opened");
-	}
-	else {
-		fprintf(writePtr, "Format: (property name) (property rate)");
-		// boolean flag variable
-		bool stop = false;
-		
-		puts("\nentered file writing function (test print)\n");
+		// loops until current prop pointer is NULL (reached end of list)
+		while (currentPropPtr != NULL)
+		{
+			FILE* writePtr = NULL;
+			char delimiter = '_';
+			char charToReplace = ' ';
+			char specificFilePath[STRING_LENGTH] = { " " }; 
+			char propertyNameFilePath[STRING_LENGTH] = { " " }; 
+			char fileExtentionType[STRING_LENGTH] = { " " };
 
-		// loops until end of file or boolean flag is caught
-		while (!feof(writePtr) && !stop) {
-			// checks that pets exist in linked list
-			if (headPropPtr != NULL)
-			{
-				// initialize current pet pointer
-				Property* currentPropPtr = headPropPtr;
-				// loops until reached end of linked list
-				while (currentPropPtr != NULL)
-				{
-					// write data to file in format "name	age"
-					
-					fprintf(writePtr, "\n%-6s\t%-26lf", (currentPropPtr)->name, (currentPropPtr)->rate);
-					
-					// advance the pointer to next pet
-					currentPropPtr = currentPropPtr->nextPtr;
-				}
-				// set flag to true when the linked list iteration has completed
-				stop = true;
+			strncpy(specificFilePath, folderPath, strlen(folderPath));
+			
+			strncpy(propertyNameFilePath, currentPropPtr->name, strlen(currentPropPtr->name));
+			replaceCharsInString(propertyNameFilePath, charToReplace, delimiter, strlen(propertyNameFilePath));
+			
+			strncpy(fileExtentionType, ".txt", strlen(".txt"));
+			
+			strcat(specificFilePath, propertyNameFilePath);
+			strcat(specificFilePath, fileExtentionType);
+
+			if ((writePtr = fopen(specificFilePath, "w")) == NULL) {
+				puts("\nFile could not be opened");
 			}
+			else {
+				// boolean flag variable
+				bool stop = false;
+
+				// loops until end of file or boolean flag is caught
+				while (!feof(writePtr) && !stop) {
+					// checks that pets exist in linked list
+					if (headPropPtr != NULL)
+					{
+						// loops until reached end of linked list
+						if (currentPropPtr != NULL)
+						{
+							// write information to file
+							printNightsChargesToFile(currentPropPtr, writePtr);
+							printCategoriesAndRatingsToFile(currentPropPtr, writePtr, categories, RENTER_SURVEY_CATEGORIES);
+						}
+						// set flag to true when the linked list iteration has completed
+						stop = true;
+					}
+				}
+				// close file
+				fclose(writePtr);
+			}
+			currentPropPtr = currentPropPtr->nextPtr;
 		}
-		// close file
-		fclose(writePtr);
+	}
+	// there are no elements in list to begin with
+	else
+	{
+		puts("List is empty");
+	}
+}
+
+/*
+description: 
+parameters: 
+return: 
+*/
+void printCategoriesAndRatingsToFile(Property* propStrucPtr, FILE* filePtr, const char* categories[RENTER_SURVEY_CATEGORIES], size_t totalCategories) {
+	//loop to display each category horizontally
+	fprintf(filePtr, "%s", "\n\nRating Categories:\t");
+	for (size_t surveyCategory = 0; surveyCategory < totalCategories; ++surveyCategory)
+	{
+		fprintf(filePtr, "\t%zu.%s\t", surveyCategory + 1, categories[surveyCategory]);
+	}
+	fputs("", filePtr); // start new line of output
+
+	// this function prints the average of each category
+	// iterate through categoryAverages array and display results
+	fprintf(filePtr, "%s", "\nRating averages:");
+	for (size_t category = 0; category < totalCategories; category++) {
+		fprintf(filePtr, "\t\t\t%.2f", propStrucPtr->categoryAverages[category]);
+	}
+}
+
+/*
+description: 
+parameters: 
+return: 
+*/
+void printNightsChargesToFile(Property* propStrucPtr, FILE* filePtr) {
+	fprintf(filePtr, "Rental Property Report");
+	fprintf(filePtr, "\nName: %s", propStrucPtr->name);
+	fprintf(filePtr, "\nLocation: %s", propStrucPtr->location);
+	fprintf(filePtr, "\n\nRental Property Totals");
+	fprintf(filePtr, "\nRenters\t\tNights\t\tCharge\n%d\t\t%d\t\t$%.0f", propStrucPtr->numOfRenters, propStrucPtr->totalNights, propStrucPtr->totalCharges);
+}
+
+/*
+description: replaces all instances of a char with another char from a string
+parameters: takes a string, a char to scan for in string, a char to replace instances of other char with, and length of string
+return: nothing, modifies string directly from within function
+*/
+void replaceCharsInString(char* stringFilePathPtr, char charToScanFor, char replaceWithChar, size_t str_len) {
+	for (int element = 0; element < str_len; element++) {
+		char holder[STRING_LENGTH] = { stringFilePathPtr[element] };
+
+		if ((strcmpCaseIgnore(holder, " ", 2) == 0)) {
+			/*char* char1 = */strchr(stringFilePathPtr, charToScanFor);
+			stringFilePathPtr[element] = '_';
+		}
 	}
 }

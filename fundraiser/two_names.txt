@@ -1,0 +1,10 @@
+Rental Property Report
+Name: two names
+Location: nal
+
+Rental Property Totals
+Renters		Nights		Charge
+0		0		$0
+
+Rating Categories:		1.Check-in Process		2.Cleanliness		3.Amenities		4.cat4	
+Rating averages:			0.00			0.00			0.00			0.00

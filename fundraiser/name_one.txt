@@ -1,0 +1,10 @@
+Rental Property Report
+Name: name one
+Location: lca
+
+Rental Property Totals
+Renters		Nights		Charge
+1		2		$240
+
+Rating Categories:		1.Check-in Process		2.Cleanliness		3.Amenities		4.cat4	
+Rating averages:			4.00			3.00			4.00			2.00
