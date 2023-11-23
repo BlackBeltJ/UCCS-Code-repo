@@ -40,11 +40,11 @@ UPDATE desc
 #define MAX_RATE 1000
 #define DISCOUNT_MULTIPLIER 2
 // folder path
-#define FOLDERPATH "C:/Users/black/Desktop/UCCS-Code-repo/fundraiser/"
+#define BASE_FOLDERPATH "C:/Users/black/Desktop/UCCS-Code-repo/fundraiser/"
 
 
 // Defining property structure
-// can be declared using the 'Property" tag
+// can be declared using the "Property" tag
 typedef struct property {
 	unsigned int minimumNights;
 	unsigned int maximumNights;
@@ -94,9 +94,10 @@ int getValidInt(const unsigned int min, const unsigned int max);
 int getValidIntSentinal(const unsigned int min, const unsigned int max, const unsigned int sentinal);
 void removeNewLine(char* stringPtr, int size);
 bool scanInt(const char* const stringInput, int* const integerPtr);
+char validateYesNo();
 
 // functions for property setup (structure)
-void initializeDefaultPropertyVals(Property* prop, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate);
+void initializeDefaultPropertyVals(Property* prop, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate, int discountMultiplier);
 void setUpProperty(Property* propertyPtr, int STR_SIZE, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate);
 
 // linked list functions
@@ -104,18 +105,14 @@ Property* choosePropToRent(Property** headPropPtr, int str_len);
 int strcmpCaseIgnore(const char* string1, const char* string2, int string_length);
 void insertPropLoop(Property** headPropPtr, int str_len);
 void insertProp(Property** headPropPtr, Property* currentProp, int str_len);
-char validateYesNo();
 void displayProperties(Property* headPropPtr);
-
-int getValidInt(const unsigned int min, const unsigned int max);
-bool scanInt(const char* const stringInput, int* const integerPtr);
-
 void freeRemainingProperties(Property** headPropPtr);
+
+// file operation functions
 void writePropsToFile(Property* headPropPtr, char* folderPath, const char* categories[RENTER_SURVEY_CATEGORIES]);
 void printCategoriesAndRatingsToFile(Property* propStrucPtr, FILE* filePtr, const char* categories[RENTER_SURVEY_CATEGORIES], size_t totalCategories);
 void printNightsChargesToFile(Property* propStrucPtr, FILE* filePtr);
 void replaceCharsInString(char* stringFilePathPtr, char charToScanFor, char replaceWithChar, size_t str_len);
-//
 
 // main function
 int main(void) {
@@ -124,8 +121,6 @@ int main(void) {
 
 	// initialize master headPtr
 	Property* headPtr = NULL;
-
-	
 
 	// log the user in, return true if user logs in correctly, false otherwise
 	bool loggedIn = isLoggedIn(CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS, STRING_LENGTH);
@@ -162,6 +157,7 @@ int main(void) {
 					displaySurveyAverages(currentPropPtr, RENTER_SURVEY_CATEGORIES);
 					puts("\n==========================================================\n");
 				}
+				// advance to next property
 				currentPropPtr = currentPropPtr->nextPtr;
 			}
 		}
@@ -171,7 +167,7 @@ int main(void) {
 			puts("List is empty");
 		}
 		// write property results to files
-		writePropsToFile(headPtr, FOLDERPATH, surveyCategories);
+		writePropsToFile(headPtr, BASE_FOLDERPATH, surveyCategories);
 		// deallocate remaining memory for all existing property structs
 		freeRemainingProperties(&headPtr);
 	}
@@ -461,7 +457,7 @@ void displaySurveyAverages(const Property* propStrucPtr, size_t total_categories
 	parameters: property struct, const unsigned int min and max nights, const double min and max rates
 	return: nothing
 */
-void initializeDefaultPropertyVals(Property* prop, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate) {
+void initializeDefaultPropertyVals(Property* prop, const unsigned int minNights, const unsigned int maxNights, const double minRate, const double maxRate, int discountMultiplier) {
 	prop->minimumNights = minNights;
 	prop->maximumNights = maxNights;
 	prop->minimumRate = minRate;
@@ -470,12 +466,12 @@ void initializeDefaultPropertyVals(Property* prop, const unsigned int minNights,
 	prop->interval2Nights = 0;
 	prop->rate = 0;
 	prop->discount = 0;
-	prop->discountMultiplier = DISCOUNT_MULTIPLIER;
+	prop->discountMultiplier = discountMultiplier;
 	prop->numOfRenters = 0;
 	prop->totalCharges = 0;
 	prop->totalNights = 0;
 	prop->numOfRenters = 0;
-	prop->nextPtr = NULL;
+	prop->nextPtr = NULL; // <----- important!!!!! there are many checks in this program that checks for a NULL pointer value and if this is not initialized to NULL, problems arise
 	strncpy(prop->name, " default name ", strlen(" default name "));
 	strncpy(prop->location, " default location ", strlen(" default location "));
 
@@ -650,13 +646,15 @@ Property* choosePropToRent(Property** headPropPtr, int str_len) {
 	// initialize property pointers
 	Property* currentPropPtr = *headPropPtr;
 	Property* propertyPickedPtr = NULL;
+	// display all existing properties for user to choose from
 	displayProperties(*headPropPtr);
 
+	// will loop until propertyPickedPtr is set to not NULL (a property was successfully picked)
 	do {
-		char userInput[STRING_LENGTH];
+		char userInput[] = { "" };
 		puts("\n\nEnter the name of the property you want to rent:");
-		fgets(&userInput, str_len, stdin);
-		removeNewLine(&userInput, strlen(userInput));
+		fgets(userInput, str_len, stdin);
+		removeNewLine(userInput, strlen(userInput));
 
 		// iterate through list to find property with specified name
 		while (currentPropPtr != NULL && propertyPickedPtr == NULL) {
@@ -710,32 +708,30 @@ int strcmpCaseIgnore(const char* string1, const char* string2, int string_length
 }
 
 /*
-description: this is the looping logic for adding pets to the list. prompts user for choice (y or n) and name and age of pet. calls insertPets() to
-	actually insert the pets into list
-parameters: a double pointer that stores an address to a Pet struct which is the head pointer of a linked list, and an integer string length
+description: this is the looping logic for adding prop to the list. prompts user for choice (y or n) and name and age of prop. calls insertProp() to
+	actually insert the prop into list
+parameters: a double pointer that stores an address to a prop struct which is the head pointer of a linked list, and an integer string length
 return: nothing
 */
 void insertPropLoop(Property** headPropPtr, int str_len) {
+	// init chars
 	char userResponse[] = { " " };
 	char noResponse[] = { "n" };
 
 	do {
 		// initialize and declare memory for new property "node"
 		Property* propToInsert = malloc(sizeof(struct property));
-		initializeDefaultPropertyVals(propToInsert, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
-
-		char propName[STRING_LENGTH];
-		char userInput[STRING_LENGTH];
+		initializeDefaultPropertyVals(propToInsert, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE, DISCOUNT_MULTIPLIER);
 
 		// set up property info and validate here...
 		puts("\nSetting up property information...");
 		setUpProperty(propToInsert, STRING_LENGTH, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
 
-		// call insert pets passing head pointer, name, age and length to actually insert the pet into list
+		// call insert props passing head pointer, name, age and length to actually insert the prop into list
 		insertProp(headPropPtr, propToInsert, str_len);
 		
+		// ask user if they want to add another property
 		displayProperties(*headPropPtr);
-
 		puts("\n\nDo you want to add another property?\n");
 		char response = validateYesNo();
 
@@ -766,32 +762,30 @@ char validateYesNo() {
 }
 
 /*
-description: this function takes in the head pointer to linked list and determines where to add the pet based on the name and age provided
-parameters: a double pointer that stores an address to a Pet struct which is the head pointer of a linked list, string pet name, integer pet age and integer string length
+description: this function takes in the head pointer to linked list and determines where to add the prop based on the name and age provided
+parameters: a double pointer that stores an address to a prop struct which is the head pointer of a linked list, string prop name, integer prop age and integer string length
 return: nothing, updates values in linked list via pointers on calling stack
 */
 void insertProp(Property** headPropPtr, Property* propToInsert, int str_len) {
-	
-
 	if (propToInsert != NULL) // checks that memory was allocated successfully
 	{
-		// initialize trailing pet pointer and current pet pointer
+		// initialize trailing prop pointer and current prop pointer
 		Property* lastPropPtr = NULL;
 		Property* currentPropPtr = *headPropPtr;
 
-		// check that new name is less than current pet pointer name (alphabetical order check)
+		// check that new name is less than current prop pointer name (alphabetical order check)
 		while (currentPropPtr != NULL && strcmpCaseIgnore(currentPropPtr->name, propToInsert->name, strlen(currentPropPtr->name)) < 0) {
-			// next two lines insert new pet before current pet 
+			// next two lines insert new prop before current prop
 			lastPropPtr = currentPropPtr;
 			currentPropPtr = currentPropPtr->nextPtr;
 		}
-		if (lastPropPtr == NULL) { // if first pet in list
-			*headPropPtr = propToInsert; // assign head pointer to the new pet
+		if (lastPropPtr == NULL) { // if first prop in list
+			*headPropPtr = propToInsert; // assign head pointer to the new prop
 		}
-		else { // if last pet in list
-			lastPropPtr->nextPtr = propToInsert; // assign last pointer to new pet
+		else { // if last prop in list
+			lastPropPtr->nextPtr = propToInsert; // assign last pointer to new prop
 		}
-		// advance pointer to next pet
+		// advance pointer to next prop
 		propToInsert->nextPtr = currentPropPtr;
 	}
 	else {
@@ -800,8 +794,8 @@ void insertProp(Property** headPropPtr, Property* propToInsert, int str_len) {
 }
 
 /*
-description: takes in a head pointer to linked list and returns the values of all the pets
-parameters: single pointer to head Pet struct in linked list
+description: takes in a head pointer to linked list and returns the values of all the props
+parameters: single pointer to head prop struct in linked list
 return: nothing
 */
 void displayProperties(Property* headPropPtr) {
@@ -816,7 +810,6 @@ void displayProperties(Property* headPropPtr) {
 		while (currentPropPtr != NULL)
 		{
 			// display and go to next node
-			//printf("\nname: %s\tage: %d", currentPropPtr->name, currentPropPtr->age);
 			displayRentalPropertyInfo(currentPropPtr);
 			currentPropPtr = currentPropPtr->nextPtr;
 		}
@@ -831,7 +824,7 @@ void displayProperties(Property* headPropPtr) {
 /*
 function description: this function takes in a head pointer and iterates through the linked list deleting and deallocating
 memory as it goes to completely wipe the list
-parameters: a double pointer that stores an address to a Pet struct which is the head pointer of a linked list
+parameters: a double pointer that stores an address to a prop struct which is the head pointer of a linked list
 return: nothing
 */
 void freeRemainingProperties(Property** headPropPtr) {
@@ -839,14 +832,14 @@ void freeRemainingProperties(Property** headPropPtr) {
 	Property* currentPropPtr = *headPropPtr;
 	Property* nextPropPtr = NULL;
 
-	// will loop until currentPetPtr is NULL (reaches end of list)
+	// will loop until currentPropPtr is NULL (reaches end of list)
 	while (currentPropPtr != NULL)
 	{
-		// set the next pointer to the value stored in the current pet's nextPtr variable (move iteration along to next pet)
+		// set the next pointer to the value stored in the current prop's nextPtr variable (move iteration along to next prop)
 		nextPropPtr = currentPropPtr->nextPtr;
-		// deallocate memory for current pet
+		// deallocate memory for current prop
 		free(currentPropPtr);
-		// bring current pet pointer back to speed by setting it equal to next pointer which is now pointing to the next pet in list
+		// bring current prop pointer back to speed by setting it equal to next pointer which is now pointing to the next prop in list
 		currentPropPtr = nextPropPtr;
 	}
 	// set the address stored in the head pointer to NULL (delete any remaining links to list)
@@ -855,8 +848,8 @@ void freeRemainingProperties(Property** headPropPtr) {
 }
 
 /*
-description: writes name and age of each pet to a file
-parameters: pointer to file address and pointer to address of head linked list pet
+description: writes name and age of each prop to a file
+parameters: pointer to file address and pointer to address of head linked list prop
 return: nothing
 */
 void writePropsToFile(Property* headPropPtr, char* folderPath, const char* categories[RENTER_SURVEY_CATEGORIES]) {
@@ -895,7 +888,7 @@ void writePropsToFile(Property* headPropPtr, char* folderPath, const char* categ
 
 				// loops until end of file or boolean flag is caught
 				while (!feof(writePtr) && !stop) {
-					// checks that pets exist in linked list
+					// checks that props exist in linked list
 					if (headPropPtr != NULL)
 					{
 						// loops until reached end of linked list
