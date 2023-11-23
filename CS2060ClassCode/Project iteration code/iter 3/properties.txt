@@ -1,0 +1,2 @@
+Format: (property name) (property rate)
+naem1 	200.000000                

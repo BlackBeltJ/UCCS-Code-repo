@@ -31,7 +31,7 @@ UPDATE desc
 //Rental property login and sentinal values
 #define CORRECT_ID "id"
 #define CORRECT_PASSCODE "ab"
-#define LOGIN_MAX_ATTEMPTS 2
+#define LOGIN_MAX_ATTEMPTS 4
 #define SENTINAL_NEG1 -1
 //rental property constant ranges
 #define MIN_RENTAL_NIGHTS 1
@@ -111,7 +111,7 @@ int getValidInt(const unsigned int min, const unsigned int max);
 bool scanInt(const char* const stringInput, int* const integerPtr);
 
 void freeRemainingProperties(Property** headPropPtr);
-void writePropsToFile(FILE* filePtr, Property* headPropPtr);
+void writePropsToFile(Property* headPropPtr);
 //
 
 // main function
@@ -120,12 +120,12 @@ int main(void) {
 	const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities" , "cat4"};
 
 	// initialize property structure 
-	Property property1;
+	//Property property1;
 	// initialize headPtr...
-	Property* headPtr;
+	Property* headPtr = NULL;
 
 	// initialize default values for property struct variables so they are not assigned to junk
-	initializeDefaultPropertyVals(&property1, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
+	//initializeDefaultPropertyVals(&property1, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
 
 	// main main logic and program flow
 	// log the user in, return true if user logs in correctly, false otherwise
@@ -137,23 +137,45 @@ int main(void) {
 		// call insert property loop here... (linked list)
 		insertPropLoop(&headPtr, STRING_LENGTH);
 		rentalMode(&headPtr, MINRATING, MAXRATING, VACATION_RENTERS, RENTER_SURVEY_CATEGORIES, DISCOUNT_MULTIPLIER, SENTINAL_NEG1, CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS, STRING_LENGTH, surveyCategories);
+		
 		// after rentalMode ends, check the total nights and total charges in the struct
-		if (property1.totalNights == 0 || property1.totalCharges == 0) // this is for when there are no rentals and the owner wants a summary
+		// iterate through list
+		if (headPtr != NULL)
 		{
-			puts("\nThere were no rentals...Exiting program");
+			// declares new prop pointer for iteration
+			Property* currentPropPtr = headPtr;
+			// loops until current prop pointer is NULL (reached end of list)
+			while (currentPropPtr != NULL)
+			{
+				// display results and go to next node
+				if (currentPropPtr->totalNights == 0 || currentPropPtr->totalCharges == 0) // this is for when there are no rentals for a property
+				{
+					puts("\n==========================================================");
+					printf("\nThere were no rentals for the property named \"%s\"...", currentPropPtr->name);
+					puts("\n==========================================================\n");
+				}
+				else // there were charges, calculate and display averages
+				{
+					puts("\n==========================================================");
+					printNightsCharges(currentPropPtr);
+					printCategories(surveyCategories, RENTER_SURVEY_CATEGORIES);
+					calculateCategoryAverages(currentPropPtr, VACATION_RENTERS, RENTER_SURVEY_CATEGORIES);
+					displaySurveyAverages(currentPropPtr, RENTER_SURVEY_CATEGORIES);
+					puts("\n==========================================================\n");
+				}
+				currentPropPtr = currentPropPtr->nextPtr;
+			}
 		}
-		else // there were charges, calculate and display averages
+		// there are no elements in list to begin with
+		else
 		{
-			puts("\n==========================================================\n");
-			printNightsCharges(&property1);
-			printCategories(surveyCategories, RENTER_SURVEY_CATEGORIES);
-			calculateCategoryAverages(&property1, VACATION_RENTERS, RENTER_SURVEY_CATEGORIES);
-			displaySurveyAverages(&property1, RENTER_SURVEY_CATEGORIES);
-			puts("\n==========================================================\n");
+			puts("List is empty");
 		}
+
+		writePropsToFile(headPtr);
+		freeRemainingProperties(&headPtr);
 	}
-	freeRemainingProperties(headPtr);
-	puts("\n\nExiting AirUCCS.");
+	puts("\nExiting AirUCCS. :)");
 } // end of main
 
 
@@ -408,9 +430,9 @@ void printSurveyResults(const Property* propStrucPtr, size_t renters_rows, size_
 	return: nothing, console output
 */
 void printNightsCharges(const Property* propStrucPtr) {
-	printf("%s", "\nRental Property Report");
-	printf("Name: %s", propStrucPtr->name);
-	printf("Location: %s", propStrucPtr->location);
+	printf("\nResults for \"%s\" property...", propStrucPtr->name);
+	printf("\nName: %s", propStrucPtr->name);
+	printf("\nLocation: %s", propStrucPtr->location);
 	puts("\nRental Property Owner Total Summary");
 	printf("\nRenters\tNights\tCharge\n%d\t%d\t$%.0f", propStrucPtr->numOfRenters, propStrucPtr->totalNights, propStrucPtr->totalCharges);
 }
@@ -448,10 +470,14 @@ void initializeDefaultPropertyVals(Property* prop, const unsigned int minNights,
 	prop->interval2Nights = 0;
 	prop->rate = 0;
 	prop->discount = 0;
+	prop->discountMultiplier = DISCOUNT_MULTIPLIER;
 	prop->numOfRenters = 0;
 	prop->totalCharges = 0;
 	prop->totalNights = 0;
 	prop->numOfRenters = 0;
+	prop->nextPtr = NULL;
+	strncpy(prop->name, " default name ", strlen(" default name "));
+	strncpy(prop->location, " default location ", strlen(" default location "));
 
 	// initialize arrays with 0s
 	// 1D array
@@ -487,8 +513,10 @@ void setUpProperty(Property* propertyPtr, int STR_SIZE, const unsigned int minNi
 
 	puts("Enter the property name: ");
 	fgets(propertyPtr->name, STR_SIZE, stdin); // dont need & because passing array which already holds address
+	removeNewLine(propertyPtr->name, strlen(propertyPtr->name));
 	puts("Enter the property location: ");
 	fgets(propertyPtr->location, STR_SIZE, stdin); // dont need & because passing array which already holds address
+	removeNewLine(propertyPtr->location, strlen(propertyPtr->location));
 }
 
 /*
@@ -498,9 +526,9 @@ void setUpProperty(Property* propertyPtr, int STR_SIZE, const unsigned int minNi
 */
 void displayRentalPropertyInfo(const Property* propStrucPtr) {
 	// %.0f is rounding to 0 decimal places, cuts down double to appear like an integer
-	printf("\nName: %s", propStrucPtr->name);
-	printf("Location: %s", propStrucPtr->location);
-	printf("Rental Property can be rented for %d to %d nights.", propStrucPtr->minimumNights, propStrucPtr->maximumNights);
+	printf("\n\nName: %s", propStrucPtr->name);
+	printf("\nLocation: %s", propStrucPtr->location);
+	printf("\nRental Property can be rented for %d to %d nights.", propStrucPtr->minimumNights, propStrucPtr->maximumNights);
 	printf("\n$%.0f rate a night for the first %d nights", propStrucPtr->rate, propStrucPtr->interval1Nights);
 	printf("\n$%.0f discount rate a night for nights %d to %d", propStrucPtr->discount, propStrucPtr->interval1Nights + 1, propStrucPtr->interval2Nights);
 	printf("\n$%.0f discount rate a night for each remaining night over %d.", (propStrucPtr->discount * propStrucPtr->discountMultiplier), propStrucPtr->interval2Nights);
@@ -618,20 +646,22 @@ description:
 parameters: 
 return:
 */
-Property* choosePropToRent(Property** headPropPtr, int str_len) {
-	displayProperties(*headPropPtr);
+Property* choosePropToRent(Property** headPropPtr, int str_len) {	
 	// initialize property pointers
 	Property* currentPropPtr = *headPropPtr;
 	Property* propertyPickedPtr = NULL;
-
+	
+	displayProperties(*headPropPtr);
 	do {
+		
+
 		char userInput[STRING_LENGTH];
-		puts("Enter the name of the property you want to rent:");
+		puts("\n\nEnter the name of the property you want to rent:");
 		fgets(&userInput, STRING_LENGTH, stdin);
 		removeNewLine(&userInput, strlen(userInput));
 
 		// iterate through list to find property with specified name
-		while (currentPropPtr != NULL) {
+		while (currentPropPtr != NULL && propertyPickedPtr == NULL) {
 			// check for name match
 			if (strcmpCaseIgnore(currentPropPtr->name, userInput, strlen(userInput)) == 0) {
 				// assign return pointer to the address of the property with the name
@@ -639,11 +669,15 @@ Property* choosePropToRent(Property** headPropPtr, int str_len) {
 			}
 			else {
 				// advance pointer to next prop
-				currentPropPtr->nextPtr = currentPropPtr;
+				//currentPropPtr->nextPtr = currentPropPtr;
+				currentPropPtr = currentPropPtr->nextPtr;
 			}
 		}
 		if (propertyPickedPtr == NULL) {
-			puts("Error, the property you entered doesn't match and existing properties. Enter the property name again.");
+			puts("\nError, the property you entered doesn't match and existing properties. Enter the property name again.");
+			// reinit the pointer values for each loop iteration
+			currentPropPtr = *headPropPtr;
+			propertyPickedPtr = NULL;
 		}
 	} while (propertyPickedPtr == NULL);
 	return propertyPickedPtr;
@@ -684,24 +718,24 @@ void insertPropLoop(Property** headPropPtr, int str_len) {
 	char userResponse[] = { " " };
 	char noResponse[] = { "n" };
 
-	// declare property struct to insert
-	Property* propToInsert = NULL;
-	initializeDefaultPropertyVals(propToInsert, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
-
 	do {
+		// initialize and declare memory for new property "node"
+		Property* propToInsert = malloc(sizeof(struct property));
+		initializeDefaultPropertyVals(propToInsert, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
+
 		char propName[STRING_LENGTH];
 		char userInput[STRING_LENGTH];
 
 		// set up property info and validate here...
-		puts("Setting up property information...");
+		puts("\nSetting up property information...");
 		setUpProperty(propToInsert, STRING_LENGTH, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
 
 		// call insert pets passing head pointer, name, age and length to actually insert the pet into list
 		insertProp(headPropPtr, propToInsert, str_len);
-
+		
 		displayProperties(*headPropPtr);
 
-		puts("\nDo you want to add another property?\n");
+		puts("\n\nDo you want to add another property?\n");
 		char response = validateYesNo();
 
 		strncpy(userResponse, &response, strlen(userResponse));
@@ -736,11 +770,9 @@ parameters: a double pointer that stores an address to a Pet struct which is the
 return: nothing, updates values in linked list via pointers on calling stack
 */
 void insertProp(Property** headPropPtr, Property* propToInsert, int str_len) {
-	// initialize and declare memory for new pet "node"
-	Property* newPropPtr = malloc(sizeof(struct property));
-	initializeDefaultPropertyVals(newPropPtr, MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, MIN_RATE, MAX_RATE);
+	
 
-	if (newPropPtr != NULL) // checks that memory was allocated successfully
+	if (propToInsert != NULL) // checks that memory was allocated successfully
 	{
 		// initialize trailing pet pointer and current pet pointer
 		Property* lastPropPtr = NULL;
@@ -753,16 +785,16 @@ void insertProp(Property** headPropPtr, Property* propToInsert, int str_len) {
 			currentPropPtr = currentPropPtr->nextPtr;
 		}
 		if (lastPropPtr == NULL) { // if first pet in list
-			*headPropPtr = newPropPtr; // assign head pointer to the new pet
+			*headPropPtr = propToInsert; // assign head pointer to the new pet
 		}
 		else { // if last pet in list
-			lastPropPtr->nextPtr = newPropPtr; // assign last pointer to new pet
+			lastPropPtr->nextPtr = propToInsert; // assign last pointer to new pet
 		}
 		// advance pointer to next pet
-		newPropPtr->nextPtr = currentPropPtr;
+		propToInsert->nextPtr = currentPropPtr;
 	}
 	else {
-		printf("No memory to create node for name \"%s\" and rate \"%.2f\"", propToInsert->name, newPropPtr->rate);
+		printf("\nNo memory to create node for name \"%s\" and rate \"%.2f\"", propToInsert->name, propToInsert->rate);
 	}
 }
 
@@ -818,7 +850,7 @@ void freeRemainingProperties(Property** headPropPtr) {
 	}
 	// set the address stored in the head pointer to NULL (delete any remaining links to list)
 	*headPropPtr = NULL;
-	puts("\n==============================\nAll properties have been deleted.\n==============================\n");
+	printf("%s", "\n==============================\nAll properties have been deleted.\n==============================\n");
 }
 
 /*
@@ -826,17 +858,19 @@ description: writes name and age of each pet to a file
 parameters: pointer to file address and pointer to address of head linked list pet
 return: nothing
 */
-void writePropsToFile(FILE* filePtr, Property* headPropPtr) {
+void writePropsToFile(Property* headPropPtr) {
 	FILE* writePtr = NULL;
 
 	// need to add direct path to file
 	if ((writePtr = fopen("C:/Users/black/Desktop/UCCS-Code-repo/CS2060ClassCode/Project iteration code/iter 3/properties.txt", "w")) == NULL) {
-		puts("File could not be opened");
+		puts("\nFile could not be opened");
 	}
 	else {
-		fprintf(writePtr, "Format: (property name) (property age)");
+		fprintf(writePtr, "Format: (property name) (property rate)");
 		// boolean flag variable
 		bool stop = false;
+		
+		puts("\nentered file writing function (test print)\n");
 
 		// loops until end of file or boolean flag is caught
 		while (!feof(writePtr) && !stop) {
@@ -850,7 +884,7 @@ void writePropsToFile(FILE* filePtr, Property* headPropPtr) {
 				{
 					// write data to file in format "name	age"
 					
-					fprintf(writePtr, "\n%-6s\t%-26d", (currentPropPtr)->name, (currentPropPtr)->rate);
+					fprintf(writePtr, "\n%-6s\t%-26lf", (currentPropPtr)->name, (currentPropPtr)->rate);
 					
 					// advance the pointer to next pet
 					currentPropPtr = currentPropPtr->nextPtr;
