@@ -642,22 +642,20 @@ bool scanInt(const char* const stringInput, int* const integerPtr) {
 // ================================================================================================
 
 /*
-description: 
-parameters: 
-return:
+description: prompts user for name of property to rent, if name matches property in list, will return pointer to that property struct
+parameters: takes in the head pointer to the linked list, and the length of string
+return: returns a POINTER to the property the user chose
 */
 Property* choosePropToRent(Property** headPropPtr, int str_len) {	
 	// initialize property pointers
 	Property* currentPropPtr = *headPropPtr;
 	Property* propertyPickedPtr = NULL;
-	
 	displayProperties(*headPropPtr);
-	do {
-		
 
+	do {
 		char userInput[STRING_LENGTH];
 		puts("\n\nEnter the name of the property you want to rent:");
-		fgets(&userInput, STRING_LENGTH, stdin);
+		fgets(&userInput, str_len, stdin);
 		removeNewLine(&userInput, strlen(userInput));
 
 		// iterate through list to find property with specified name
@@ -668,11 +666,11 @@ Property* choosePropToRent(Property** headPropPtr, int str_len) {
 				propertyPickedPtr = currentPropPtr;
 			}
 			else {
-				// advance pointer to next prop
-				//currentPropPtr->nextPtr = currentPropPtr;
+				// advance pointer to next prop if not match
 				currentPropPtr = currentPropPtr->nextPtr;
 			}
 		}
+		// if after iterating through the loop, the propertyPickPtr was not updated (there was no match), error and restart the loop
 		if (propertyPickedPtr == NULL) {
 			puts("\nError, the property you entered doesn't match and existing properties. Enter the property name again.");
 			// reinit the pointer values for each loop iteration
@@ -969,7 +967,7 @@ void replaceCharsInString(char* stringFilePathPtr, char charToScanFor, char repl
 		char holder[STRING_LENGTH] = { stringFilePathPtr[element] };
 
 		if ((strcmpCaseIgnore(holder, " ", 2) == 0)) {
-			/*char* char1 = */strchr(stringFilePathPtr, charToScanFor);
+			strchr(stringFilePathPtr, charToScanFor);
 			stringFilePathPtr[element] = '_';
 		}
 	}
