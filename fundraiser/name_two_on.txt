@@ -1,10 +1,10 @@
 Rental Property Report
-Name: name one
+Name: name two on
 Location: location
 
 Rental Property Totals
 Renters		Nights		Charge
-2		11		$2120
+1		6		$2960
 
 Rating Categories:		1.Check-in Process		2.Cleanliness		3.Amenities		4.cat4	
-Rating averages:			1.50			2.50			3.50			3.00
+Rating averages:			2.00			3.00			4.00			3.00

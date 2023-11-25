@@ -2,13 +2,12 @@
 Joshua Edwards
 CS 2060 003 AirUCCS Project Iteration 3
 Made on Windows 10
-This program creates a system for user to view information about rental properties and
-then input the number of nights they want to rent the property for and receive an estimated
-charge based on the number of nights and the discount rate. The owner of the property can
+This program creates a system for property owners to add their properties to the system
+and then allows a user to view information about each rental property and then chose a 
+property to rent and input the number of nights they want to rent that property and receive 
+an charge based on the number of nights and the discount rate. The owner of the property can
 also input a special value to receive back a summary of the nights rented and the total
-money made.
-
-UPDATE desc
+money made which gets written to a file for each property.
 */
 
 #include <stdio.h>
@@ -40,7 +39,7 @@ UPDATE desc
 #define MAX_RATE 1000
 #define DISCOUNT_MULTIPLIER 2
 // folder path
-#define BASE_FOLDERPATH "C:/Users/black/Desktop/UCCS-Code-repo/fundraiser/"
+#define BASE_FOLDERPATH ""
 
 
 // Defining property structure
@@ -651,7 +650,7 @@ Property* choosePropToRent(Property** headPropPtr, int str_len) {
 
 	// will loop until propertyPickedPtr is set to not NULL (a property was successfully picked)
 	do {
-		char userInput[] = { "" };
+		char userInput[STRING_LENGTH] = { "" };
 		puts("\n\nEnter the name of the property you want to rent:");
 		fgets(userInput, str_len, stdin);
 		removeNewLine(userInput, strlen(userInput));
@@ -863,19 +862,22 @@ void writePropsToFile(Property* headPropPtr, char* folderPath, const char* categ
 		while (currentPropPtr != NULL)
 		{
 			FILE* writePtr = NULL;
-			char delimiter = '_';
-			char charToReplace = ' ';
-			char specificFilePath[STRING_LENGTH] = { " " }; 
-			char propertyNameFilePath[STRING_LENGTH] = { " " }; 
-			char fileExtentionType[STRING_LENGTH] = { " " };
+			char delimiter = '_'; // this is what to replace instances of charToReplace with
+			char charToReplace = ' '; // will search file path for spaces (' ')
+			// I split the file path unto three strings
+			char specificFilePath[STRING_LENGTH] = { " " }; // the base folder
+			char propertyNameFilePath[STRING_LENGTH] = { " " }; // the unique property file name
+			char fileExtentionType[STRING_LENGTH] = { " " }; // and the file type (.txt)
 
 			strncpy(specificFilePath, folderPath, strlen(folderPath));
 			
 			strncpy(propertyNameFilePath, currentPropPtr->name, strlen(currentPropPtr->name));
+			// replaces all spaces with underscores
 			replaceCharsInString(propertyNameFilePath, charToReplace, delimiter, strlen(propertyNameFilePath));
 			
 			strncpy(fileExtentionType, ".txt", strlen(".txt"));
 			
+			// concatenates the three strings into one master string containing the unique file path to each property
 			strcat(specificFilePath, propertyNameFilePath);
 			strcat(specificFilePath, fileExtentionType);
 
@@ -916,9 +918,9 @@ void writePropsToFile(Property* headPropPtr, char* folderPath, const char* categ
 }
 
 /*
-description: 
-parameters: 
-return: 
+description: writes the rating categories and rating averages for each property to a file
+parameters: takes the property to display information from, a file pointer, the category array, and the total num of categories
+return: nothing, prints ouput to file
 */
 void printCategoriesAndRatingsToFile(Property* propStrucPtr, FILE* filePtr, const char* categories[RENTER_SURVEY_CATEGORIES], size_t totalCategories) {
 	//loop to display each category horizontally
@@ -938,9 +940,9 @@ void printCategoriesAndRatingsToFile(Property* propStrucPtr, FILE* filePtr, cons
 }
 
 /*
-description: 
-parameters: 
-return: 
+description: writes the basic property information to a file
+parameters: takes the property to display information from and the file pointer
+return: nothing, prints ouput to file
 */
 void printNightsChargesToFile(Property* propStrucPtr, FILE* filePtr) {
 	fprintf(filePtr, "Rental Property Report");
