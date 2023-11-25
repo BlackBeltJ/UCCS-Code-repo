@@ -497,7 +497,7 @@ void setUpProperty(Property* propertyPtr, int STR_SIZE, const unsigned int minNi
 	puts("Set up rental property information");
 
 	puts("Enter the number of nights until first discount: ");
-	propertyPtr->interval1Nights = getValidInt(minNights, maxNights);
+	propertyPtr->interval1Nights = getValidInt(minNights, maxNights-1);
 	puts("Enter the number of nights until second discount: ");
 	propertyPtr->interval2Nights = getValidInt(propertyPtr->interval1Nights + 1, maxNights);
 

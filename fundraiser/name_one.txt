@@ -1,0 +1,10 @@
+Rental Property Report
+Name: name one
+Location: location2
+
+Rental Property Totals
+Renters		Nights		Charge
+2		15		$3000
+
+Rating Categories:		1.Check-in Process		2.Cleanliness		3.Amenities		4.cat4	
+Rating averages:			3.00			4.00			3.50			3.00
