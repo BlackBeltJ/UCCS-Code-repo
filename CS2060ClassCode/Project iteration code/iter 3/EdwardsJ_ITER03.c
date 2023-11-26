@@ -39,7 +39,7 @@ money made which gets written to a file for each property.
 #define MAX_RATE 1000
 #define DISCOUNT_MULTIPLIER 2
 // folder path
-#define BASE_FOLDERPATH ""
+#define BASE_FOLDERPATH "C:/Users/black/Desktop/UCCS-Code-repo/fundraiser/"
 
 
 // Defining property structure
@@ -73,7 +73,7 @@ typedef struct property {
 void displayRentalPropertyInfo(const Property* propStrucPtr);
 // Calculates the charge based on the number of nights rented
 double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount);
-// Prints the name, locationm, number of nights, and the charge
+// Prints the name, location, number of nights, and the charge
 void printNightsCharges(const Property* propStrucPtr);
 
 // login function
